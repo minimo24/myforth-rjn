@@ -1,0 +1,48 @@
+\ rand.txt -- random number generator -- 160223rjn
+\
+\
+-----[OVERVIEW]-----
+
+This project uses a Nano board to generate a pseudo-random serial datastream.
+This is similar to that done for the 300 chip.  This is the first project
+done with Charley's new system using the "W" new loop counter register 
+assignment, M and O scratch registers, etc.
+
+-----[DESCRIPTION]-----
+
+Only one of the Nano outputs is used for this project (other than display
+LED).
+
+-----[ DEVELOPMENT ENVIRONMENT ]-----
+
+An Arduino Nano board with a USBtiny programming interface.
+
+-----[ HARDWARE ]-----
+
+1. Nano board plugged into a USBtiny programmer. 
+2. An oscilloscope to check the PSR output.  Now assigned to D3.
+3. Tentatively configured D2 for an option jumper/switch.  Perhaps to
+   route output to LED or slow down sequence rate.
+
+-----[ SOFTWARE ]-----
+
+1. The "new" myforth-arduino system, downloaded from github 160223, is the 
+   basis for the code.  A custom test328.fs is used instead of the normal
+   328p register definition file so that port pins can be addressed in
+   several different ways.
+2. See init.fs for pin configuration, job.fs for application load file.
+3. New format for init.fs with improved I/O comments -- template in 
+   init-template.fs (generally useful for new I/O initialization).
+
+-----[ DOCUMENTATION ]-----
+
+For now, this is the project documentation.
+
+ ------------------------------------------------------------------------------
+                            Revision History
+ ------------------------------------------------------------------------------
+
+Date	   By  Comments
+=======	=== ==================================================================
+160222   rjn initial writeup.
+
