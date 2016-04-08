@@ -1,10 +1,8 @@
 ## myforth-arduino Projects by Bob Nash
 
-This is an early release (only one project):
+This is an early release so only one project:
 
-Project   Description
--------   -----------------------------------------------------------------
-RAND      Generates pseudo-random noise on an Arduino Pro Mini or Nano
+RAND -- Generates pseudo-random noise on an Arduino Pro Mini or Nano
 
 
 Notes:
