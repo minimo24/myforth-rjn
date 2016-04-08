@@ -1,4 +1,17 @@
-## myforth-arduino Projects written by Bob Nash (rjn)
+## myforth-arduino Projects by Bob Nash (rjn)
 
-These files is a myforth-arduino project to generate pseudo-random
-noise using an Arduino.
+This is an early release (only one project):
+
+**Project  Description**
+**-------  -------------------------------------------------------------------**
+**RAND**   Generates pseudo-random noise on an Arduino Pro Mini or Nano
+
+
+Notes:
+
+1. My directory structure is:
+      * ~/myforth-arduino
+      *     rjn
+      *        328      2560
+      *          RAND
+2. Contact me at (bob.nash1@gmail.com)

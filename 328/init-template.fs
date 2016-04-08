@@ -1,4 +1,4 @@
-\ init.fs -- RAND initialization -- 160224rjn
+\ init.fs -- initialization template -- 160408rjn
 \ 
 \ 
 \ -----------------------------------------------------------------------------
@@ -73,6 +73,7 @@ A7             ADC7  output   unused
 
 Date     By    Description
 ======   ===   ================================================================
+160408   rjn   release version
 160224   rjn   Initial version.
 
 [then] \ ----------------------------------------------------------------------
