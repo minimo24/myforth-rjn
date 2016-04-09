@@ -1,0 +1,39 @@
+\ blink.txt -- blink tester for 2560 chip -- 150830rjn
+\
+\
+-----[OVERVIEW]-----
+
+This project uses the ($8) MEGA 2560 board with a direct USB/serial connection
+to blink an LED, thus verifying basic functionality. 
+
+-----[DESCRIPTION]-----
+
+This application performs a basic "blink the light" test to verify 2560
+chip functionality.
+
+-----[ DEVELOPMENT ENVIRONMENT ]-----
+
+A MEGA 2560 board with a direct USB/serial interface an serial bootloader
+plugged into a type B USB cable and a PC type A USB connection.
+
+-----[ HARDWARE ]-----
+
+1. MEGA 2560 board.
+
+-----[ SOFTWARE ]-----
+
+1. myforth-arduino system downloaded from github.
+2. See init.fs for pin configuration.
+
+-----[ DOCUMENTATION ]-----
+
+This is the project documentation.
+\ 
+\   
+0 [if] ------------------------[ revisions ]-----------------------------------
+
+Date	   By  Comments
+=======	=== ===================================================================
+150530   rjn initial version.
+
+[then] \ ----------------------------------------------------------------------
