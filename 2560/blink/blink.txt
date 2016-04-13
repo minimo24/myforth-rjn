@@ -1,4 +1,4 @@
-\ blink.txt -- blink tester for 2560 chip -- 150830rjn
+\ blink.txt -- blink tester for 2560 chip -- 160413rjn
 \
 \
 -----[OVERVIEW]-----
@@ -14,7 +14,7 @@ chip functionality.
 -----[ DEVELOPMENT ENVIRONMENT ]-----
 
 A MEGA 2560 board with a direct USB/serial interface an serial bootloader
-plugged into a type B USB cable and a PC type A USB connection.
+plugged into a type B USB cable and a PC type "A" USB connection.
 
 -----[ HARDWARE ]-----
 
@@ -34,6 +34,8 @@ This is the project documentation.
 
 Date	   By  Comments
 =======	=== ===================================================================
+160413   rjn Eliminated reference to the standalone interpreter in job.fs.
+             The 2560 structure is different from the 328p and it won't work.
 150530   rjn initial version.
 
 [then] \ ----------------------------------------------------------------------

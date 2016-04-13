@@ -1,4 +1,6 @@
-\ job.fs -- blink tester for 2560 chip -- 150830rjn
+\ job.fs -- blink tester for 2560 chip -- 160413rjn
+\ 
+\ changed to eliminate standalone interpreter -- won't work with 2560. 
 \ 
 only forth also definitions
 : nowarn warnings off ; : warn warnings on ; : not 0= ;
@@ -42,8 +44,6 @@ include ./ATmega2560.fs  \ Special Function Registers (use these for now)
 24 constant T   25 constant T'   \ top of stack
 22 constant N   23 constant N'   \ next on stack (temporary)
 
-true constant cs?  \ produce compilation summary?
-
 include ../../../compiler.fs
 include ../../../disAVR.fs
 include ./asmAVR.fs
@@ -85,22 +85,13 @@ include ../../../miscAVR.fs
 target  \ $68 org
 
 \ ./blink.txt  \ doc file
-\ include ../../timer.fs  \ for reference
 include ../../../primitives.fs
 include ./delays.fs
 include ../../../math.fs
 include ../../../serial.fs
 include ../../../numbers.fs
-include ../../../standalone.fs
-\ include ../../../strings.fs
-cs? [if] here [ cr .( system:                ) . .( bytes) ] [then]
 include ./init.fs
-\ include ./sleeper.fs
-\ include ./watchdog.fs
-\ include ./eeprom.fs
-\ include ./steps.fs
 include ./main.fs  \ application code, ends with go
-[ cr ]  \ pretty compilation summary
 
 :m init-serial
    DDRD Y ldi,  2 T ldi,  T sty,  \ TX0 is output
@@ -114,8 +105,7 @@ include ./main.fs  \ application code, ends with go
 \   8 T ldi,  T sty+,    \ 57600 baud, 8 MHz crystal
    0 T ldi,  T sty+,  m;
 
-\ Uncomment if you haven't already defined this word,
-\ in timer.fs for example.
+\ Uncomment if you haven't already defined this word.
 : init-interrupt  ;
 
 target
@@ -128,6 +118,6 @@ here [ dup ] dict org #p! org headers  \ tack headers on end
 
 host : .stack  depth if  >red  then  .s >black cr ;
 report
-save  \ chip.bin, avrdude handles binary files just fine.
+save
 host .( Host stack= ) .stack
 
