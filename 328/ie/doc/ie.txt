@@ -1,0 +1,95 @@
+\ ie.txt -- incremental encoder demo for Nano  -- 160507rjn
+\
+\
+-----[OVERVIEW]-----
+
+This project uses a Nano to demo an incremental encoder driver for
+the Arduino.
+
+-----[DESCRIPTION]-----
+
+Demo application for an incremental encoder wired to a Nano.
+
+-----[ DEVELOPMENT ENVIRONMENT ]-----
+
+A Nano board mounted on a Nano Terminal Adapter (Deek-Robot).  Simultaneous
+connections to the Nano serial and hardware programmer (usbtiny).
+Readout of IE 32-bit accumulator via minicom terminal and interactive
+interpreter.
+
+-----[ HARDWARE ]-----
+
+1. Nano board, incremental encoder, terminal adapter. 
+2. USB/mini cable, USB connection and hardware programming cable to
+   Nano 2x6 programming header from usbtiny programmer.
+
+-----[ SOFTWARE ]-----
+
+1. Cloned application from SERDY (latest app. at the time of project start).
+2. The standalone interpreter is used to demo the reading the incremental
+   encoder accumulator.
+3. See init.fs for pin configuration, job.fs for application load file.
+
+-----[ DOCUMENTATION ]-----
+
+Simulation
+----------
+The encoder was simulated by connecting PD4 to PD2 (INT0) and connecting
+PD6 to PD3 (INT1).  PD4 and PD6 are configured as outputs and PD2 and
+PD3 are configured as inputs with weak pullups (these are needed to 
+drive the optical encoder which has open-collector outputs).
+
+The A connection to the encoder (INT0) is configured so that an interrupt
+is generated for each lead change.  Lead changes on the B connection are
+ignored but resolution can be doubled by configuring INT1 to generate
+an interrupt on each B lead change.
+
+For the I/O configuration, see init.fs .  For more info on the ISR and
+timing, see ie.fs .  The simulation is shown in main.fs .
+
+The A and B signals from the encoder were observed on a Tek TDS 2014 scope
+to verify the quadrature signals.  The signals appeared picture perfect.
+
+Interrupt Service Routine
+-------------------------
+The ISR takes about 4 microseconds to execute (see test code in ie.fs).
+This gives a maximum rate of over 200K counts/sec.  The 1200 counts/rev
+encoder, when spun very fast on its good bearings, achieved a change rate 
+on the A lead of approximately 90 microseconds.  Thus, the ISR should be able
+to keep up with just about any hand-operated encoder.  The Chinese optical
+encoder was about $10 on eBay.
+
+The scope was used to observe the ISR timing: The PB4 output was set on ISR
+entry and cleared on exit.  The test code is given in ie.fs as "test-add",
+which is executed as a macro in the main loop to improve measurement accuracy.
+
+The ISR was measured at just over 4 microseconds with a 16 MHz Nano clock.
+The "test-add" macro does include the 4-cycle overhead of the set and clear
+commands for PB4 but the actual routine has the ISR response time that is
+not included in the test code so everthing tends to even out.
+
+Drawing
+--------
+A drawing, ie_2.jpg, in the doc directory shows an encoder timing diagram
+and the simulation's hardware connections.  The drawing also shows the
+sequence of the A and B leads for clockwise and counter clockwise rotation.
+
+As noted in the drawing, XORing the previous A and B logic levels with the
+current A and B logic levels yields the encoder direction and indicates
+valid transitions.  For example, XORing the current and previous values with
+each other should always yield a "1 1" result.  This is not detected in the
+code, but could be added if noisy encoders are used so that illegal transitions
+are ignored: I opted for speed vs. error detection.
+
+ ------------------------------------------------------------------------------
+                            Revision History
+ ------------------------------------------------------------------------------
+
+Date	   By  Comments
+=======	=== ==================================================================
+160507   rjn Coding finished a few days ago.  Now on tail end of the project, 
+             including doc cleanup, dwg, etc.  Works (counts verified) with 
+             three different encoders, including a 1200 counts/rev optical 
+             encoder from China.
+160427   rjn initial writeup.  Moved this file to the DOC directory.
+
