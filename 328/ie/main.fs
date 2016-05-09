@@ -38,6 +38,7 @@
 \ 
 Date	  By    Description
 ======= === ===================================================================
+160509  rjn works on several optical encoders, weak pullups seem sufficient.
 160506  rjn hooked up to Chinese optical encoder, 10K pullups on A & B
 160504  rjn working simulator
 160430  rjn changed A & B to INT0 & INT1, use lead change on INT0

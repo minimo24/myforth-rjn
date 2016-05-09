@@ -1,4 +1,4 @@
-\ job.fs -- IE Demo Application -- 160427rjn
+\ job.fs -- IE Demo Application -- 160509rjn
 
 only forth also definitions
 : nowarn warnings off ; : warn warnings on ; : not 0= ;
@@ -55,7 +55,7 @@ include ../../../ATmega328.fs
 
 include ../../../compiler.fs
 include ../../../disAVR.fs
-include ./asmAVR_lsr.fs
+include ../../../asmAVR.fs
 include ../../../miscAVR.fs
 
 :m init-stacks
