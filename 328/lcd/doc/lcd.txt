@@ -1,0 +1,236 @@
+\ lcd.txt -- 2X16 LCD Demo Application  -- 160510rjn
+\
+\
+-----[OVERVIEW]-----
+
+This project uses a pro mini (PM) board to demonstrate how to drive a
+2X16 LCD using myforth-arduino.
+
+-----[DESCRIPTION]-----
+
+The PM outputs are connected to directly drive the LCD lines.  
+A USB to serial converter connected to the PM via the 6-pin interface connector
+provides power, ground and serial I/O (2 pins of the 6-pin interface are not
+used).
+
+The demo application is designed to demo LCD commands issued by a PC
+using the USB to serial converter.  However, the serial link can be 
+used to directly drive the LCD from a remote processor.
+
+-----[ DEVELOPMENT ENVIRONMENT ]-----
+
+1. A PM board connected to an LCD per the schematic in the doc folder.
+2. USB to serial adapter connected to the 6-pin PM interface.
+3. A PC running a terminal program such as minicom.
+
+-----[ HARDWARE ]-----
+
+Same as given above for the Development Environment. 
+
+-----[ SOFTWARE ]-----
+
+1. The SERDY software was used as a template.
+2. The standalone interpreter is used to demo LCD commands.
+3. See init.fs for pin configuration, job.fs for application load file.
+4. lcd16.fs is the LCD driver.  commands.fs provides some LCD demo commands.
+
+-----[ DOCUMENTATION ]-----
+
+Overview
+--------
+The LCD driver is designed to work only with a 2X16 LCD display but can be
+easily adapted to other sizes.  The commands provided in the demo application
+are intended as an example of how the LCD can be controlled within an
+application.  Because the commands provides can generally be included within
+a colon definition, expansion of the LCD command repertoire is relatively
+easy and, for most applications, necessary.
+
+
+Initialization
+--------------
+As part of the standalone interpreter's startup code, the LCD is initialized 
+with the "init" command (see main.fs "go" definition in job.fs).
+
+After initialization, the display should be blank with a static underline 
+cursor at the home position (line 1, position 1).  In some cases, mostly
+during development, the LCD initalization must be forced by pressing the
+reset switch on the Pro Mini board (or by cycling power).
+
+Thus, if you have just downloaded the demo code using the serial downloader, 
+correct initialization may require a manual reset with the Pro Mini's
+on-board reset button.
+
+After a "hard" reset, bring up a terminal, such as minicom, set for a serial
+rate of 57,600 baud.  Other rates can be used by changing values as shown in
+the job.fs file.  Note that this application uses an 8 MHz Pro Mini board.
+
+There is no particular reason for this other than several were on-hand.
+
+After bringing up the terminal, press "Enter" a few times to confirm that the standalone interpreter is running (it should return an "ok" response).
+
+After initialization, a "soft" reset of the display can performed with the
+"//" or "0lcd" commands (see below).
+
+
+Version
+-------
+One good way to verify that the display is working correctly is to enter
+the "v" (version) command to display the version.  In the demo, the fancy
+version control command is implemented.  It shows some of the capabilities
+of the commands such as scrolling and blanking.  The "v" command is 
+defined in the commands.fs source file.
+
+An alternative "v" command is provided for applications that can't afford
+to wait for the "v" show to complete (takes several seconds).
+
+You can also use the "ltest" command to verify that the display is working
+correctly.
+
+If these commands do not result in a charater display, check that the contrast
+control is adjusted properly.  You might also try a power-off reset.
+
+
+Backlight Control
+-----------------
+The demo application also includes LCD commands to control the LCD backlight.
+Port/Pin PD6 is used to drive a FET that controls the LCD's LED backlight.
+The backlight intensity is controlled by a fast PWM signal from Timer 0
+that drives PD6 and the backlight FET.
+
+A relatively large repertoire of backlight commands are implemented
+in lcd16.fs to demo this capability but many applications will not require
+all of the control provided.  
+
+The backlight commands can be looked up by displaying the lcd16.fs code.
+Here are some of the commands available:
+
+   Command     Description
+   =======     ================================================================
+   bf          off
+   bh          high
+   bl          low
+   bm          medium
+   bn          on
+   n bs        set backlight intensity from stack
+   ba          backlight alert (rapidly flashes backlight)
+   n bas       set backlight alert duration with parameter on stack
+
+Notes:
+
+1.  Commands requiring a parameter are protected against execution with
+    no parameter on the stack (e.g., bas).  
+2.  Parameters are entered first (e.g., 25 bas) and are typically in the
+    range of 0 to 255.
+3.  Backlight commands begin with a "b".
+
+LCD Commands
+------------
+Here are the commands used to control the LCD:
+
+   Command     Description
+   =======     ================================================================
+   0lcd        reset lcd (seldom used)
+   cf          cursor off
+   //          reset, cursor off
+   ck          blinking cursor as character
+   ca          (advance) move cursor right one position
+   n cas       advance cursor n positions right
+   cb          (back) move cursor left one position
+   n cbs       move cursor n positions to the left (back)
+   cn          cursor on
+   ch          cursor home
+
+   dl          scroll display one pos left
+   dr          scroll display one pos right
+   d/          display home and blink
+   da          (all) display, cursor, blink on
+   db          display blank (turns off display)
+   df          display off
+   dn          display on, cursor off
+   n dls       move display n spaces to the left
+   n drs       move display n spaces to the right 
+   ds          display a blank
+   n dss       display n blanks
+
+   l1          set cursor to start of line1
+   l2          set cursor to start of line2
+   /l1         send 16 blanks to line 1 (clears line 1)
+   /l2         send 16 blanks to line 2 (clears line 2)
+   ltest       line test (sends text to l1 and l2)
+
+   p           enter characters from the keyboard, sent to LCD.
+               (terminates on entry of a carriage return)
+   lh.         display number on stack in hex on LCD
+   lud.        display double number on stack on LCD (unsigned)
+   lu.         display number on stack on LCD (unsigned)
+   ld.         display double number on stack on LCD (signed)
+   l.          display number on stack on LCD (signed)
+
+Notes:
+
+1.  Most cursor commands begin with a "c".
+2.  Most display control commands begin with a "d".
+3.  Most line positioning and numeric display commands begin with an "l".
+
+
+String I/O
+----------
+The LCD driver provides a string display command that can be used within an
+applicaion (but not executed from a command line).  This display word is
+"ltype" and takes the string address and count as stack parameters.
+
+For example, to display a string on line 1: : mytest l1 s" testing!" ltype ;
+
+For demo purposes, enter "ltest" to show how a string defined in application
+code is displayed (see lcd16.fs for the string definition).
+
+
+Character Entry from the Terminal
+---------------------------------
+The "p" (put or place) command displays text entered from the keboard on the
+LCD.  For example, to display text starting on line 2, enter:
+
+   /l2 p This is a test!
+
+When a "p" is entered, keyboard characters are displayed on the LCD until
+a carriage return is entered (i.e., "Enter" key is pressed).
+
+
+Numeric Display
+---------------
+A number of commands (all beginning with "l") can be used to display numbers
+from the myforth stack.  In most cases, these will be used by the application
+to display numeric results calculated internal to the application.
+
+In most cases the numeric display commands are protected against entry with
+no value on the stack.  Double number entries are checked only for a value
+on the stack (not two entries on the stack).
+
+
+Incremental Encoder
+-------------------
+Although not included in this demo app, an incremental encoder (IE) can be
+easily added to an applicion by connecting the A and B leads of the 
+encoder to the INT0 and INT1 (PD2 & PD3) inputs.  A demo of the IE
+is included in the IE application folder.  Because the IE demo requires
+INT0 and INT1 inputs to run, the I/O used to drive the LCD avoids these 
+two inputs.
+
+
+Driver Usage
+------------
+The driver provides commands that can be used from an applicaion to display
+characters and control the LCD.  Note that LCD I/O is rather slow, requiring
+about 10 milliseconds per character.  This may be unacceptable for many 
+high performance applications.  For most applicaions it is advisable to 
+perform I/O to an LCD buffer in ram with a background task that writes 
+characters to the display from this buffer.
+
+ ------------------------------------------------------------------------------
+                            Revision History
+ ------------------------------------------------------------------------------
+
+Date	   By  Comments
+=======	=== ==================================================================
+160510   rjn initial writeup.
+
