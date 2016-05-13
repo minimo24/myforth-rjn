@@ -1,4 +1,4 @@
-\ init.fs -- SERDY initialization -- 160510rjn
+\ init.fs -- LCD initialization -- 160510rjn
 \ 
 \ 
 \ -----------------------------------------------------------------------------
