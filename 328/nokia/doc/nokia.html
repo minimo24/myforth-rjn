@@ -1,0 +1,1157 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+<head>
+   <link rel="stylesheet" type="text/css" href="./nokia.css"> 
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="author" content="Bob Nash">
+   <meta http-equiv="Description"  content="Nokia Graphics LCD Manual">
+   <meta http-equiv="Keywords" content="nokia, electronics, LCD, display, serial, microcontrollers, Arduino, Nano">
+   <title>Serial LCD Display</title>
+</head>
+
+<!-- <body bgcolor="#E6E6E6" lang=EN-US style='tab-interval:.5in'> -->
+<body lang=EN-US style='tab-interval:.5in'>
+   
+<!-- see .css file for formatting info -->
+
+<!-- <a href="../index.html"><img src="../icons/home.gif" alt="<--" ></a> -->
+   <b><div align="center"><h1>NOKIA Graphics LCD Board</h1></div></b>
+<br />
+
+<a name= "photo 1"></a><p><center><img src="./nokia_files/photo1_nokia_assembly_600x337.jpg" alt="Nokia Assembly" border=0 /></center></p>
+<p><b><i><div align="center" style="font-size: 100%">Photo 1. Nokia Development Assembly</div></b></i></p>   
+
+<br />
+
+<p>This manual describes a demo application for the Nokia 5110 graphics LCD display module (Nokia module). The Nokia's monochrome graphics display area is 48 by 84 pixels.  The demo application shows how to implement two character sets, "Normal" and "Big."  The demo also shows how the Normal and Big characters can be placed at specified locations on the display.</p>
+
+<p>In the following, the demo is called the "NOKIA" application.  Photo 1, above, shows the NOKIA project development assembly built on a 3 by 1 3/4 inch piece of perforated breadboard and wired point to point with wire-wrap wire.  The display shows Normal size characters.</p>
+
+<p>Depending on a jumper setting, the NOKIA project board starts up in either a serial command mode or a demo display mode.  The serial command mode allows the display to be exercised using commands sent from a terminal program or a control microprocessor.</p>
+
+<p>In the demo display mode, the display shows the the current version number, display settings, two character sets and some special effects.</p>
+
+<p>The NOKIA project was originally designed as a command-driven peripheral to offload display processing from another processor.  This uses only the two asynchronous serial lines to provide a display instead of the multiple I/O lines that are typically needed to directly drive a display.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right"><b>Page ii</b></p>
+                                                
+<br /><br /><br /><br /><br /><br />
+
+<center><h2>(BLANK PAGE)</h2></center>    
+
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right"><b>Page iii</b></p>
+	
+<h2>Contents</h2>
+   
+<ul style="list-style: none; ">
+   <li><a href="#section 1">Introduction</a></li>
+      <ul>	
+         <li><a style="font-size: 80%" href="#section 1a">General</a></li>
+         <li><a style="font-size: 80%" href="#section 1b">Software</a></li>
+         <li><a style="font-size: 80%" href="#section 1c">Forth Features</a></li>
+         <li><a style="font-size: 80%" href="#section 1d">Future</a></li>
+      </ul>
+
+	<li><a href="#section 2">Quick Start</a></li>
+   <li><a href="#section 3">Features</a></li>
+      <ul>	
+         <li><a style="font-size: 80%" href="#section 3a">Module Assembly</a></li>
+         <li><a style="font-size: 80%" href="#section 3b">Serial Commands</a></li>
+         <li><a style="font-size: 80%" href="#section 3c">Display Formatting</a></li>
+         <li><a style="font-size: 80%" href="#section 3d">Spare I/O</a></li>
+         <li><a style="font-size: 80%" href="#section 3e">Level Conversion</a></li>
+         <li><a style="font-size: 80%" href="#section 3f">Command and Demo Modes</a></li>
+         <li><a style="font-size: 80%" href="#section 3g">SPI I/O</a></li>
+         <li><a style="font-size: 80%" href="#section 3h">Power</a></li>
+         <li><a style="font-size: 80%" href="#section 3i">Documentation</a></li>
+      </ul>
+      
+   <li><a href="#section 4">Contrast</a></li>
+		<ul>
+         <li><a style="font-size: 80%" href="#section 4a">Introduction</a></li>
+         <li><a style="font-size: 80%" href="#section 4b">Initialization</a></li>
+         <li><a style="font-size: 80%" href="#section 4c">Commands</a></li>
+         <li><a style="font-size: 80%" href="#section 4d">Current Setting</a></li>
+      </ul>
+
+	   <li><a href="#section 5">Backlight</a></li>
+		<ul>
+			<li><a style="font-size: 80%" href="#section 5a">Introduction</a></li>
+         <li><a style="font-size: 80%" href="#section 5b">Initialization</a></li>
+         <li><a style="font-size: 80%" href="#section 5c">Commands</a></li>
+         <li><a style="font-size: 80%" href="#section 5d">Settings</a></li>
+         <li><a style="font-size: 80%" href="#section 5e">Alerts</a></li>
+      </ul>     
+   
+   <li><a href="#section 6">Text</a></li>
+      <ul>
+		   <li><a style="font-size: 80%" href="#section 6a">Introduction</a></li>
+         <li><a style="font-size: 80%" href="#section 6b">Display Modes</a></li>
+         <li><a style="font-size: 80%" href="#section 6c">Positioning</a></li>
+         <li><a style="font-size: 80%" href="#section 6d">Normal Characters</a></li>
+         <li><a style="font-size: 80%" href="#section 6e">Big Characters</a></li>
+		</ul>
+                                          
+    <li><a href="#section 7">Numbers</a></li>
+      <ul>
+		   <li><a style="font-size: 80%" href="#section 7a">Introduction</a></li>
+         <li><a style="font-size: 80%" href="#section 7b">Formatting</a></li>
+      </ul>
+
+   <li><a href="#section 8">Fill, Erase</a></li>  
+   <li><a href="#section 9">Settings</a></li>
+   <li><a href="#section 10">Control</a></li>
+   <li><a href="#section 11">Command Summary</a></li>
+   <li><a href="#section 12">Revision Summary</a></li>
+
+</ul>	
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right"><b>Page iv</b></p>
+      
+<h2>Figures</h2>
+<ul>
+   <li><a href="./nokia_files/schematic1_nokia_5.jpg">Schematic 1. NOKIA Schematic</a></li>
+   <li><a href="#photo 1">Photo 1. NOKIA Project Assembly</a></li>
+   <li><a href="#photo 2">Photo 2. Contrast Setting Screen</a></li>
+   <li><a href="#photo 3">Photo 3. Settings Screen</a></li>
+</ul>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 1</b></p>
+
+<a name= "section 1"></a><h2>Introduction</h2>
+
+<a name= "section 1a"></a><h3>General</h3>
+   
+<p>The NOKIA project is based on an Arduino Nano board and a Nokia 5110 graphics LCD module.  It is primarily intended to demonstrate character I/O on the display.  A schematic and photo of the Nano and the Nokia display assembly provides construction information.</p> 
+
+<p>The NOKIA project includes an option jumper to start the board in the demo or serial command modes.  In the command mode, serial commands from a terminal exercise the display features such as changing backlight intensity or displaying characters.</p>
+
+<p>Because the display only needs five SPI and control lines, there are unused Nano I/O pins that can be used to expand the project into a more capable standalone application.  Unused I/O is noted in <a href="./nokia_files/schematic1_nokia_5.jpg">Schematic 1</a>.</p>
+
+   <p>Thus, the NOKIA demo can serves as a starting point for an application that requires a text/graphics display.</p>
+
+   <p>This manual describes commands that can be executed either from a terminal program running on a PC or directly over the serial port by a host processor (e.g., another Nano or Raspberry Pi).  In the following it should be understand that commands can be entered using either of these two methods.</p>
+   
+   <p>The manual also describes how to augment the commands and employ unused hardware for application extensions.</p>
+
+   <p>Unused I/O includes Port D, Pins 2 and 3 (PD2 and PD3), which are generally reserved for external interrupts 0 and 1.  These pins can connect to an incremental encoder (IE), as described at the myforth-rjn archives at <a href="https://github.com/minimo24/myforth-rjn">github</a>.
+     
+<a name= "section 1b"></a><h3>Software</h3>
+
+      <p>The source code for this application is at <a href="https://github.com/minimo24/myforth-rjn">github</a>.  The source provides implementation details, command encoding and other information related to the demo.  The source is provided to assist in extending the command repertoire and for use as a basic display driver.</p> 
+
+         <p>The code for the Nano was developed with Charley Shattuck's <i><b>myforth-arduino</b></i> system, also at github.  <i><b>myforth-arduino</b></i> system is primarily intended to be used as a Forth-like macro assembler.  The system provides useful features of Forth, such as looping constructs and a stack, to be used when they make sense.  But, <i><b>myforth-arduino</b></i> is used most effectively when it is used as a macro-assembler that takes advantage of the versatile intstruction set of the Atmel 328p processor.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 2</b></p>
+
+<h3>Introduction (Cont.)</h3>
+
+<p>Using <i><b>myforth-arduino</b></i> results in a relatively small system.  The demo takes slightly more than 7K bytes of Flash memory.  This includes a standalone command interpreter.  The compiled image also includes a number of utilities, such as math routines, that are generally useful in standalone applications but are mostly unused in the demo.</p>
+
+<a name= "section 1c"></a><h3>Forth Features</h3>
+
+<p>Because the NOKIA demo application is intended for use with a project based on <i><b>myforth-arduino</i></b>, many Forth-like features are used to executing commands.</p>  
+
+<p>The most important feature of Forth command entry is the use of the stack to pass parameters to commands requiring them.</p>
+
+<p>To enter a value on the stack, first ensure the applicable number base, either <b>hex</b> or <b>decimal</b> is set. Once the numeric base is set, it remains in effect until it is changed.  The stack value is entered by sending the ASCII-coded numeric value to the serial port, either by typing on a terminal or transmitting the bytes over the serial port.  The stack can accept 16-bit values although most NOKIA parameters are a single byte.</p>
+
+<p>For example, to put the hexadecimal byte 0xca on the stack, enter: <b>hex ca</b> .</p>
+
+<p>When displaying stack values on a terminal or transmitting them back to a host processor, you can use the commands <b>.</b> (dot) and <b>.s</b> (dot "s").  The <b>.</b> command shows the item on the top of stack, in the current numeric base, removing it in the process.  The <b>.s</b> command non-destructively shows all stack items.  The commands <b>h.</b> and <b>u.</b> are also availble to show stack items as hexadecimal and unsigned integers, respectively.</p>
+
+<p>In the following sections, it is assumed that the reader is familiar with the above commands.  Note the the "dot" command is somewhat difficult to see but should be readable in command examples that use bold characters.</p>
+
+<a name= "section 1d"></a><h3>Future</h3>
+
+<p>The author is currently working on a printed circuit board (PCB) that supports the display module, the Nano and the level converter chip.  The PCB should be somewhat smaller than the prototype (e.g., a finished size of approximately 2 by 2 inches).  Contact the author (see last page of this manual) if you are interested in purchasing a board or semi-kit</p>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 3</b></p>
+
+<a name= "section 2"><h3>Quick Start</h3>
+   
+   <p>This section describes commands that can be executed to illustrate basic NOKIA features.</p>
+
+   <p>First, ensure that the option switch is in the "command interpreter" position (the "cmd mode").  Verify this by resetting the Nano processor and observing that the startup sequence ends with a blank display and not a repeating cycle of demo screens (the "demo mode").  Both the demo and command modes include a display that shows the current options.  This display should show "cmd option" on the third line.</p>
+   
+   <p>If the NOKIA starts up in the demo mode, change option jumper to the opposite position and reset the Nano.</p>
+
+   <p>Next, set up a serial terminal connection to the NOKIA.  This requires the connection of a USB cable to the Nano and execution of a serial terminal program on the PC.  Configure the terminal for a baud rate of 57K and enable the "local echo" option.  To test the terminal, press the Enter key and verify that an "ok" response is visible on the terminal's display.</p>
+
+   <p>One easy test of the command mode is displaying a full screen of Normal size characters.  To show this, enter: <b>nstring</b> .  To display a full screen of Big characters (4 times Normal), enter: <b>bstring</b> .  These are two of the displays shown in the demo mode.</p>
+
+<p>Here are a few more commands to try:</p>
+
+    <ul style=" list-style: none" >
+      <li><p><b>clear</b> - Erases the Nokia display memory and positions the cursor at "xy" position (0,0).</p></li>
+      <li><p><b>blank</b> - Blanks the display but does not erase display memory.  To restore the display, enter the <b>normal</b> command.</p></li>
+      <li><p><b>inverse</b> - Displays characters in the inverse mode (dark background, light characters).  To restore, use the <b>normal</b> command.</p></li>
+      <li><p><b>all-on</b> - Turns on all display pixels.  This does not affect display memory.  To restore the previous display, use the <b>normal</b> command.</p></li>
+      <li><p><b>nset</b> - Displays Nokia settings such as version, contrast, option and backlight intensity.</p></li>
+      <li><p><b>go</b> - Starts up the demo.  The only way to recover from this command is to press the reset button on the Nano (or cycle power to the NOKIA board).</p></li>
+    </ul>
+<br />   
+<p>Other commands are somewhat more complex to set up, requiring mode settings or parameter entry.  Please review the <i>Forth Features</i> subsection in the <i>Introduction</i> above for more information on parameter entry and display.</p>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 4</b></p>
+
+<a name= "section 3"></a><h2>Features</h2> 
+<a name= "section 3a"><h3>Module Assembly</h3>
+   
+   <p>The assembled NOKIA project board is approximately 3 by 1 3/4 inches and easily accommodates the Nano processor, the Nokia display module, a level converter chip and miscellaneous small components.</p>
+   
+   <p>The prototype was deliberately oversized to easily accommodate potential project components; a custom PCB board should be somewhat smaller.</p>
+   
+   <p>Note that the Nano is mounted on the back of the board assembly so that its reset switch, USB connector and programming header are easily accessed.</p>
+
+<a name= "section 3b"><h3>Serial Commands</h3>
+      
+   <p>The project board, when brought up in the serial command mode, can control the display with simple commands.  The command mode can also be used to provide information on the terminal display or transmit data back to a PC script, program or host processor.  Different command forms are available to control the display and to collect status via the serial port.</p>
+    
+   <p>Commands that only affect the display typically have an "n" prefix.  For example, the <b>nver</b> command shows the current version on the display.</p>
+   
+   <p>Commands that are intended to echo a value back to the terminal or host processor do not have an "n" prefix.  For example, the <b>cver</b> command echos the current version to the serial output but does not affect the Nokia display.</p>
+
+   <p>As noted in the <i>Introduction</i>, the NOKIA program maintains a stack that is used for temporary parameter storage for commands or to retain a value for later retrieval or display.  Parameters are entered on the stack by simply typing them on terminal or sending them to the Nano's serial port.</p>
+   
+   <p>For example, putting the number "123" on the stack can be performed by typing "123" on the keyboard or transmitting the ASCII character sequence "123" to the serial port.  <b><i>Note that commands are "entered" when they are followed by either a space or carriage return</i></b>.</p>
+   
+   <p>Stack items are observed or echoed back on the serial port using the command: <b>.s</b> ("dot s").  This command is "display only" and does not affect the value(s) on the stack.</p>
+   
+   <p>Use the <b>.</b> ("dot") command to display a stack value or send it via a serial connection.   To use the "dot" command, type it on the terminal or transmit a "period" character, followed by a space or carriage return, on the serial port.  The "dot" command removes the value from the stack.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 5</b></p>
+
+<h3>Features (Cont.)</h3>
+
+<a name= "section 3c"><h3>Display Formatting</h3>
+      
+<p>Commands are available for positioning the display's cursor, specifying normal (Normal) or large size (Big) characters and displaying numeric data.  Presently, there are few graphics commands because the intent of the demo is primarily to provide basic character and numeric display capabilities.  A "fill" command is available, however, to display patterns.</p></li>
+
+<a name= "section 3d"><h3>Spare I/O</h3>
+           
+      <p>More than a full port of unused I/O is available for other user functions (e.g., for an extended application).  Unused I/O includes the external interrupt pins, INT0 and INT1, that can be connected to an incremental encoder.  See the IE demo driver at <a href="https://github.com/minimo24/myforth-rjn">github</a>.</p>        
+
+<a name= "section 3e"><h3>Level Conversion</h3>
+
+   <p>The Nokia display module requires a 3.3 Volt supply.  Thus, the the 5 Volt outputs from the Nano must be translated into 3.3 Volt signals.  The NOKIA design includes a level converter chip.  Three of the level converters are unused and can be used for applications requiring 3.3 Volt logic.  The Nokia backlight LEDs are driven directly from a Nano PWM output and do not require level conversion.</p>
+
+<a name= "section 3f"><h3>Command and Demo Modes</h3>
+      
+   <p>An option jumper on the NOKIA assembly can be set so that the processor starts up in either the serial command mode or in the "demo" mode.  The demo mode is a turnkeyed application that continually runs a demo.  The demo can be invoked from the command mode by entering: <b>go</b> .  Once the demo starts, it can be exited only by resetting the Nano.</p></li>
+
+<a name= "section 3g"><h3>SPI I/O</h3>
+
+   <p>The Nano's SPI I/O is available on the Nano's standard 2 by 6 IDC programming header.  This header, when not being used for hardware programming, can be daisy-chained to other SPI devices.</p>
+   
+   <p>The Nokia display is managed with a hardware chip select, as with the normal SPI protocol.  The Nano's SPI Master's input, MISO, is not used and may be configured as a chip select input for another SPI device.  Unused I/O pins can be used as device select lines for other SPI devices.</p></li>
+
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 6</b></p>
+
+<h3>Features (Cont.)</h3>
+                                                
+<a name= "section 3h"><h3>Power</h3>
+
+<p>Because the Nokia display draws under one milliampere, it is powered from the 3.3 Volt output from the Nano.  The Nokia's display LEDs are driven directly from a 5 Volt Nano output and consume approximately 6 milliamperes when the backlight is at maximum intensity.</p>
+
+<p>Power for the NOKIA project can be furnished from the Nano's USB connection or from the 5 Volt input pins of the programming connector (i.e., pins 2 and 4).  Because there is a Schottky diode between the programming power and the USB power, both can be connected at the same time without harm.</p>
+
+<p>This "dual power" configuration is ideal for development because a hardware programmer can be used to program changes to the chip and a serial terminal can be attached at the same time to exercise the NOKIA with the command interpreter.  This considerably expedites development with <i><b>myforth-arduino</b></i> by allowing connections to be exercised by simply switching windows on the PC's display.</p>
+
+
+<a name= "section 3i"><h3>Documentation</h3>
+      
+   <p>This manual is available in both HTML and PDF format.  The HTML format has been retained in the event that the documentation is put on a web site.  It also provides separate access to graphic files.  These files are stored in the <i><b>nokia_files</b></i> directory.  A separate folder under this directory, <i><b>HR</b></i>, provides high-resolution versions of the photos used in the HTML document.</p>
+
+   <p>The page numbers primarily apply to the HTML document, which can be printed with the proper page breaks.  To see what the printed HTML will look like, most browsers support a "print preview" option.</p>
+   
+   <p>The PDF format is more convenient for distribution as a standalone document.  It includes live links to provide some of the hypertext capabilities of the HTML document.</p>
+
+   <p>The PDF manual is produced by importing the the HTML document to LibreOffice Writer and exporting it as a PDF.  Before exporting, some adjustments are made to improve readability, but this may not be entirely consistent (or successful).  My PDF viewer shows the manual full-page with (mostly) correct page numbers.</p>
+
+   <p>Source code documentation provides additional information and examples for building an extended application or for expanding the demo's command set to build a general-purpose serial processor.</p>
+         
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 7</b></p>
+
+<a name= "section 4"></a><h2>Contrast</h2> 
+<a name= "section 4a"><h3>Introduction</h3>
+   <p>One weakness of the Nokia displays is that a single contrast setting cannot be used for all displays.  This is because the contrast may vary based on how tightly the display is clamped to the carrier PCB and the temperature.</p>
+   
+   <p>The solution to this problem is to allow the user to adjust the contrast setting without making the process too complicated.  To do this, the NOKIA system allows for contrast adjustment when new software is loaded.  After initial setting, the contrast can be re-adjusted with commands that invoke the startup adjustment process or that directly write a new contrast value.</p>
+
+   <p>Like most LCDs, the Nokia displays are temperature sensitive.  The 5110 chip has registers to set temperature compensation values, but this feature is not implemented in the demo.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 8</b></p>
+
+<a name= "section 4b"><h3>Initialization</h3>
+
+   <p>Contrast adjustment is done when the NOKIA program is initially loaded into the Nano and the display starts up.  This adjustment can also be initiated from a command line.</p>
+
+   <p>With a new software load, eeprom memory is initialized and the contrast memory is set at 0xff.  The contrast adjustment process replaces this initial value with a more usable startup setting.</p>
+
+   <p>To set the eeprom contrast value, the display shows a sequence of values that correspond to the contrast setting being used for the current display.</p>
+
+   <p>As shown in <a href="#photo 2">Photo 2</a>, an on-screen prompt instructs the user to save the desired setting by pressing the reset button.  As shown, the two-digit hexadecimal contrast value is displayed in Big characters that decrement every few seconds while waiting for a user action.</p>
+
+<br />
+   <a name= "photo 2"></a><p><center><img src="./nokia_files/photo2_contrast_screen_600x337.jpg" alt="Contrast Setting Screen" border=0 /></center></p>
+      <p><b><i><div align="center" style="font-size: 100%">Photo 2. Contrast Setting Screen</div></b></i></p>  
+<br />
+
+<p>Contrast settings range from "very dark" to "very light" with most common settings in the range of 0xd0 to 0xc0 (0xca is typical setting). If the user does not choose a startup value, the lightest contrast setting is used.</p>
+
+<p>To change a contrast setting, the serial command mode must be used to issue commands to restart the initialization sequence, as described in the next section.</p>
+
+
+<hr noshade size=5 width="100%" align=center class="break">
+											            <p align="right" ><b>Page 9</b></p>   
+
+<a name= "section 4c"><h3>Commands</h3>
+   
+   <p>To restart the contrast setting sequence, enter: <b>new-contrast init-contrast</b>.</p>
+   
+   <p>The <b>new-contrast</b> command sets the eeprom value for the contrast to 0xff so that the system starts up as it would if the eeprom were initialized.</p>
+   
+   <p>The <b>init-contrast</b> command, when it detects an initialized contrast setting, allows the user to set the contrast interactively, as described in the Initialization section above and shown in <a href="#photo 2">Photo 2</a>.</p>
+
+      <p>A contrast setting, such as 0xca, can be written directly to the contrast memory with the <b>!econ</b> command.  For example: <b>hex ca !econ</b> sets the contrast eeprom to a value of 0xca.  The <b>hex</b> command sets the serial interpreter to the hexadecimal entry mode and the <b>ca</b> entry puts the contrast parameter on the stack.  The <b>!econ</b> ("store contrast") command then takes the contrast byte from the stack and writes it to the contrast memory.</p>
+
+      <p>Use the <b>!ncon</b> command to directly set the contrast; this does not affect the eeprom contrast setting.  This command requires a parameter byte on the stack.</p> 
+                                                                     
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 10</b></p>
+                              
+   <a name= "section 4d"><h3>Current Setting</h3>
+
+   <p>To put the current eeprom contrast setting on the stack, enter: <b>@econ</b>.  To display this value on the terminal, use the <b>.</b> (dot) command.  To display the contrast value without removing from the stack, use the <b>.s</b> command; this shows all of the parameters on the stack but, in this case, it non-destructively displays the contrast parameter.</p>
+
+   <p>To ensure that the contrast setting is displayed in hexadecimal, enter the <b>hex</b> command before displaying it with the <b>.</b> or <b>.s</b> commands.  For example, enter: <b>hex @econ .s</b> .  Without setting the hex entry/display mode, a value of "211" may be displayed instead of the hexadecimal "B1" value.</p>
+
+   <p>To set the display's contrast from eeprom, enter: <b>set-contrast</b>.  This reads the contrast setting from eeprom and sends it to the Nokia.  This command should be used after saving a new contrast setting to eeprom so that the display is shown with the new eeprom setting.  Otherwise, the setting does not take effect until the system is reset (e.g., when the Nano's reset button is pressed).</p>
+      
+   <p><p>To directly store a contrast parameter to eeprom, use the <b>!econ</b> command.  For example: <b>hex ca !econ</b> .</p>
+
+<br />   
+<a name= "photo 3"></a><p><center><img src="./nokia_files/photo3_settings_screen_600x337.jpg" alt="Settings Screen" border=0 /></center></p>
+   <p><b><i><div align="center" style="font-size: 100%">Photo 3. Settings Screen</div></b></i></p>  
+<br />      
+
+<p>The current eeprom contrast setting is displayed in a "settings" display at startup.  <a href="#photo 3">Photo 3</a> shows the settings display.  To display this screen from a command line, enter: <b>nset</b> .  Commands that start with an "n" prefix typically display something on the Nokia screen instead of the terminal.  To display just the contrast setting, use: <b>ncon</b> .</p>
+                                                
+<hr noshade size=5 width="100%" align="center" class="break">
+							                           <p align="right" ><b>Page 11</b></p>                                                
+                                                
+<a name= "section 5"><h2>Backlight</h2>
+<a name= "section 5a"><h3>Introduction</h3>
+
+   <p>The intensity of the Nokia's backlight LEDs is directly controlled by a pulse-width modulated (PWM) output from the Nano.  This allows the intensity to be continuously controlled with a byte parameter that specifies the PWM value.  Because it is difficult to distinguish between levels that are close in value to each other, commands are available for common levels such as on, off, low, medium and high.</p>  
+
+   <a name= "section 5b"><h3>Initialization</h3>
+
+      <p>The backlight setting is initialized from eeprom at startup.  For a newly-downloaded system, the backlight will initialize to 0xff, corresponding to the <b>bn</b> (full on) setting.</p>
+
+      <p>The backlight level can be changed during the execution of an application with the commands given above.  To save the current level to eeprom for use at startup, enter: <b>save-backlight</b>.  To set the backlight from eeprom, use: <b>set-backlight</b> .</p>      
+
+   <a name= "section 5c"><h3>Commands</h3>
+
+      <p>The backlight level can be set from a terminal.  The most common commands are: <b>bf</b>, <b>bl</b>, <b>bm</b>, <b>bh</b> and <b>bn</b>, which correspond to backlight off, low, medium, high and on, respectively.</p> 
+
+      <p>Set the backlight to a specific level with the <b>bs</b> (backlight set) command.  For example, to set the backlight to a value between medium (0x7f) and high (0xc0), enter: <b>hex 9a bs</b>.</p>  
+      
+      <p>The above example executes the <b>hex</b> mode command before specifying a hexadecimal value (i.e., 0x9a).  The hex mode remains in effect until it is changed by the <b>decimal</b> command.</p>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+                                             <p align="right" ><b>Page 12</b></p>  
+
+<a name= "section 5d"><h3>Settings</h3>      
+   <p>Put the current eeprom setting for the backlight on the stack with: <b>@ebl</b> .  This value can be displayed or sent to a host microprocessor with the "dot" command, as described above.  For example, to display the current eeprom setting in hexadecimal: <b>hex @ebl .</b> .</p>
+
+   <p>To change the current eeprom setting for the backlight, put the desired level on the stack and execute the command: <b>!ebl</b> ("store eeprom backlight").  The eeprom backlight value is set at startup, but <i>the current backlight value is unaffected</i> when using the <b>!ebl</b> command.</p>
+   
+   <p>After setting the backlight, the result can be verified with <b>@ebl</b>, as described above.  For example, to set and verify the backlight level stored in eeprom: <b>hex 3f !ebl @ebl .</b> .</p>   
+
+   <p>As shown in <a href="#photo 3">Photo 3</a>, the current backlight setting is displayed at startup.  This startup screen can be re-displayed with the command: <b>nset</b> .  To display only the backlight value, use: <b>npwm</b> .</p>
+
+      <p>Use the <b>pwm</b> command to put the current backlight level (PWM) setting on the stack.  This value can be displayed with the "dot" or <b>.s</b> commands, as described above in the Contrast section.  Note that <i>this command gives the current backlight setting</i>, not the setting stored in eeprom.</p>
+
+   <a name= "section 5e"><h3>Alerts</h3> 
+      <p>The <b>ba</b> and <b>bas</b> commands alert the user by rapidly flashing the backlight.  The <b>ba</b> command is a basic standalone alert with a short duration.  The demo application performs a <b>ba</b> alert just before displaying the current version.</p>
+      
+      <p>A custom alert duration can be built using a stack parameter and the <b>bas</b> command.  For example, for a longer alert than the <b>ba</b> command offers, enter: <b>decimal 20 bas</b> .</p>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 13</b></p>
+
+<a name= "section 6"><h2>Text</h2>
+<a name= "section 6a"><h3>Introduction</h3>
+                                                
+<p>The NOKIA application provides basic character and numeric display.  Characters can be displayed in two different sizes: Normal and Big.  This section describes character display; a later section describes numeric display.</p>
+
+   <p>Text (and numeric) characters can be displayed in inverse and normal modes.  Also, the screen can be blanked to hide screen data.  A command to display all pixels is also available.</p>
+
+   <p>Characters can be positioned at specified "xy" positions on the screen.  Characters output in excess of line or screen limits will wrap to the next line or to the top of the display.</p>
+
+   <a name= "section 6b"><h3>Display Modes</h3>
+
+      <p>Display modes applying to an entire screen are set with the following commands: <b>normal</b>, <b>inverse</b>, <b>all-on</b> and <b>blank</b>.</p>
+      
+      <p>The <b>normal</b> command is the most often used and many character display words automatically execute it to ensure characters are displayed with dark pixels on a light background.</p>
+      
+      <p>The <b>inverse</b> command reverses the screen display to show characters on a dark background with light pixels.  The demo application shows a full screen of both Normal and Big characters in the <b>inverse</b> mode just after displaying the screens in normal mode.</p>
+      
+      <p>The <b>all-on</b> command turns on all screen pixels for testing or special displays.  The <b>blank</b> command blanks the display but does not affect the display memory; executing the <b>normal</b> command restores a blanked display.</p>
+
+      <p>The demo application shows the <b>all-on</b> and <b>blank</b> modes just after displaying Normal and Big characters in the <b>inverse</b> mode.</p>      
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 14</b></p>
+      
+<a name= "section 6c"><h3>Positioning</h3>
+
+      <p>Use the <b>!x</b>, <b>!y</b>, <b>!xy</b> and <b>0xy</b> commands to specify the "xy" position of screen data.  The "!" in these commands is a symbolic shorthand for "store."  The commands use a byte value or a byte pair stored on the stack.</p>
+      
+      <p>For example, enter: <b>decimal 24 !x</b> to set the "x" position to 24 pixels.  The range for "x" is the width of the display (0 to 83).  Values in excess of the maximum width are wrapped to the following line or to the start of the screen.  The "x" parameter can be thought of as a column designator.  The "x" mnemonic was used instead of a column-based mnemonic because columns generally pertain to characters and are very different when characters can be displayed in two different sizes.</p>
+
+      <p>The <b>!y</b> ("store y") command sets the "y" position from a stack byte parameter.  The parameter can range from 0 to 5 for Normal characters.  The same range applies to Big characters but, because the character size is doubled, typical positions for Big characters are 0, 2 and 4.</p>      
+
+      <p>To set both "x" and "y" values with a single command, put the position parameters on the stack and use the <b>!xy</b> command.  For example, to position to "xy" coordinates (24,2), enter: <b>decimal 24 2 !xy</b> .</p>
+      
+      <p>The above commands can be used within <i><b>myforth-arduino</b></i> definions by putting values on the stack (at run time) with the "#," word.  For example: <b>: myposition  24 #, 2 #, !xy ;</b> is a word (command) definition that puts 24 and 2 on the stack at run time for use by the <b>!xy</b> word.  When <b>myposition</b> is executed from a command line, the "xy" position is set to (24,2).
+
+      <p>The <b>0xy</b> command positions to "xy" coordinates (0,0).  The <b>clear</b> command clears the display memory, sets normal mode and positions to coordinates (0,0).  To erase just the character memory, use the <b>erase</b> command.</p>
+
+      <p>Read the current screen position with the <b>@x</b> and <b>@y</b> commands.  The "@" in these commands is shorthand for "fetch."  These commands put the value of the specified coordinate on the stack.  They can be displayed with the <b>.</b> (dot) or <b>.s</b> commands.</p>    
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 15</b></p>      
+<a name= "section 6d"><h3>Normal Characters</h3>
+
+   <p>To display a single Normal size ASCII character at the current position, use the <b>nchar</b> command.  For example, to display a "K" at position (0,0), enter: <b>clear decimal 75 nchar</b> .  After executing this, you can display another character such as "E" at the following character position with: <b>69 nchar</b> .</p>
+
+   <p>Normally a program displays character strings from within a Forth definition.  This can be done with <b>ntype</b> .  This word requires a string pointer to be on the stack.  For example, here are definitons used to display <b>normal</b> and <b>inverse</b> mode characters on the demo screen:</p>
+
+<pre>
+
+  \ --- string test (zero appears at 0xy -- wrapped)
+  -: (nstring)  s" &1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ" ntype 
+                s" abcdefghijklmnopqrstuvwxyz~!@#$%^&*0"  ntype ;
+   : nstring   clear  (nstring) ;
+   : ~nstring  clear inverse (nstring) ;
+
+</pre>                  
+
+   <p>Note that there are enough characters in the two strings to cause the display to wrap.  Thus, the "&" in the first string is over-written with a "0."  With a Normal character size, up to 12 characters fit on each line and up to 6 (0-5) lines fit on a screen (72 characters total).</p>
+
+   <p>Because string display definition uses the string-compiling word <b>s"</b>, characters are put in flash memory at compile time and thus consume flash memory in the program image.</p>
+    
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 16</b></p>
+
+<a name= "section 6e"><h3>Big Characters</h3>
+     
+   <p>Big characters are four times as large as Normal characters (twice as wide and twice as high).  To output a single Big ASCII character to the display at the current position, use the <b>bchar</b> command.</p>
+   
+   <p>For example, to display a "K" at position (0,0), enter: <b>clear decimal 75 bchar</b> .  After executing this, you can display another Big character, "E", at the next character position on the display with: <b>69 bchar</b> .</p>
+   
+   <p>A total of seven Big characters can be displayed on each display line.  Note that the position for the first Big character on the first line is (0,0) but the position for the first Big character on the second line is (0,2).</p>
+   
+   <p>For example, to display a Big "X" under characters on the first line, enter: <b>0 2 !xy decimal 88 bchar</b> .  A total of 21 Big characters fit on a screen.</p>
+
+   <p>Normally a program displays a character string from within a Forth definition.  This can be done with the <b>btype</b> word after putting a string pointer on the stack.  For example, here is a demo definiton to display Big characters on the screen in <b>normal</b> and <b>inverse</b> modes:</p>
+
+<pre>
+
+  \ 
+  \ --- Big string test
+  -: (bstring)  s" *123456789ABCDEuvwxyz0" btype 0spi ; \ 0 appears at 0xy
+  : bstring  clear (bstring) ;
+  : ~bstring  clear inverse (bstring) ;
+
+</pre>                  
+
+   <p>Note that there are enough characters in the Big string to cause the display to wrap.  Thus, the "*" in the string is over-written with a "0" character.</p>
+                                                
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 17</b></p>
+
+<a name= "section 7"><h2>Numbers</h2>
+<a name= "section 7a"><h3>Introduction</h3>
+  
+   <p>It is often necessary to display numeric values.  For example, <i><b>myforth-arduino</b></i> provides the <b>h.</b>, <b>ud.</b> and <b>u.</b> words to display numbers in hexadecimal, unsigned double (32-bit) and unsigned single (16-bit) formats, respectively.  These words use pictured numeric output to assemble strings in RAM memory at the PAD location, as is standard with most Forth systems.  These words (commands) can be used to show stack numbers on a terminal.</p> 
+
+   <p>You can display numbers in these same formats in both the Normal and Big character formats.  The words to display a number on the stack in Normal and Big formats are:</p>
+
+<ul>
+   <li><a><b>nh.</b></a> - Display a Normal-format number in hexadecimal format.</li>
+   <li><a><b>bh.</b></a> - Display a Big-format number in hexadecimal format.</li>
+   <p>  </p>
+   <li><a><b>nud.</b></a> - Display a Normal-format double number (32-bit) in unsigned decimal format.</li>
+   <li><a><b>bud.</b></a> - Display a Big-format double (32-bit) number in unsigned decimal format.</li>
+   <p>  </p>
+   <li><a><b>nu.</b></a> - Display a Normal-format number in unsigned decimal format.</li>
+   <li><a><b>bu.</b></a> - Display a Big-format number in unsigned decimal format.</li>
+</ul>
+
+<a name= "section 7b"><h3>Formatting</h3>
+
+   <p>Because <i><b>myforth-arduino</b></i> provides pictured numeric output, custom character display in various formats can be easily added to an application.</p>
+
+   <p>For example, <i><b>myforth-arduino</b></i> provides <b>d.</b> to display double (32-bit) numbers but there are no corresponding NOKIA commands to do this.  If needed, this capablity can be readily added using examples provided in the <i><b>nokia.fs</b></i> source file.</p>
+   
+   <p>Because most applications require numbers to be displayed with leading zeroes suppressed, the above numeric display words do this.  For hex display, the zero-suppression routine just substitutes a blank for leading zeroes.  Thus, values such as 0xab may be displayed as two right-justified characters.  Normally, this is what is needed to assure that numbers align.  But, the leading blanks may force numeric output off the edge of a line or to the top of a screen, especially with Big-format numbers.</p>
+
+   <p>The initialization display for setting the contrast shows a Big-format two-digit hexadecimal value displayed with leading zero suppression.</p>
+
+   <p>There are several numeric display protections built into the above commands.  Trying to display a number with no number on the stack results in no action, not a "stack underflow" warning.  Also, when displaying a zero value, a single zero is displayed instead of all blanks.  The zero value in hexadecimal is output as a zero with three leading blanks.  If this is not the behavior wanted, a combination of NOKIA (see <b><i>nokia.fs</i></b>) and <i><b>myforth-arduino</b></i> words can readily provide what is needed in a custom command.</p>
+          
+<hr noshade size=5 width="100%" align="center" class="break">
+                                                <p align="right" ><b>Page 18</b></p>
+
+<a name= "section 8"><h2>Fill, Erase</h2>
+
+   <p>To fill a row with a byte pattern, put the byte on the stack, set the row and execute the <b>rfill</b> command.  For example, to specify an alternating pattern of bits, enter: <b>hex 0xy aa rfill</b> .</p>                
+
+   <p>To erase a row, you can use <b>rfill</b> with a byte pattern of 0x00.  For convenience, the command <b>/row</b> fills the current row with 0x00.  To erase all rows, use the <b>erase</b> command.  This commands fills all of display memory with zeroes.  Do not confuse it with the <b>blank</b> command that blanks the display but does not affect the display memory.</p>
+
+   <p>To erase all rows and position to xy (0,0), use the the <b>clear</b> command.  This command is equivalent to: <b>0xy normal erase</b> .</p>   
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											            <p align="right" ><b>Page 19</b></p>
+
+<a name= "section 9"></a><h2>Settings</h2>
+
+   <p>The NOKIA settings are displayed at startup, as shown in <a href="#photo 3">Photo 3</a>.  These settings can be displayed from a command line or within an application with the <b>nset</b> command.  This is often easier than describing individual parameter settings (e.g., instead of <b>ncon</b> or <b>nver</b> for contrast and version settings).</p>
+   
+      <p>The current settings displayed with the <b>nset</b> command are:</p>
+<ul>
+   <li>version</a> - Version of NOKIA software (e.g., Version 1.5).</li>
+   <li>contrast</a> - Contrast (e.g., D0).</li>
+   <li>option</a> - Option: "cmd option" for command, "demo option" for demo.</li>
+   <li>backlight</a> - Backlight PWM value (e.g., bklight   1F).</li>
+</ul>
+
+<p>  </p>
+
+<p>Use the following commands to display individual settings:</p>
+
+<ul>
+   <li><b>nver</b></a> - Version of NOKIA software</li>
+   <li><b>ncon</b></a> - Contrast</li>
+   <li><b>nopt</b></a> - Option (e.g., command or demo modes)</li>
+   <li><b>npwm</b></a> - Backlight PWM value</li>
+</ul>
+
+   <p></p>
+   
+   <p>There are several lines available on the option display screen for displaying other values.  These can be useful for debug and for application extensions.</p> 
+
+   <a name= "section 10"><h2>Control</h2>
+
+      <p>There are several commands that control the Nano or provide functions not directly related to the display.  These are collected here with the intent that the commands may be expanded to encompass additional "processor only" functions related to the use of unused I/O or a standalone application.</p>
+
+      <p>To reset the Nokia display, enter: <b>~reset</b>.  The "twiddle" prefix indicates that the Nokia's reset line is momentarily changed to perform a reset.  The reset line is normally held high (3.3 Volts).  Performing a reset pulls the reset line low for one millisecond.  This function is rarely used and some users may prefer to permanently wire the reset line high (3.3 Volts).</p>
+
+      <p>The command <b>perm</b> provides a delay of 3 seconds.  It was defined for convenience in implementing the demo display but is also available to the user.   The value of the delay can be changed in the <i><b>nokia.fs</b></i> source file by changing the "persistence" constant.</p>
+      
+      <p>A related command, <b>peek</b> is also used in the demo and is available to the user.  It delays for 3 seconds and then clears the display (i.e., it executes the <b>clear</b> command after a delay).  Delays can be performed from the console by putting the desired delay (in milliseconds) on the stack and using the <b>ms</b> command.  For example: <b>decimal 1000 ms</b> .  Note that, during delays, the terminal does not respond to any commands.</p>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											            <p align="right" ><b>Page 20</b></p>
+
+<a name= "section 11"></a><h2>Command Summary</h2>
+<table border cellspacing=3 cellpadding=7 width="850" bordercolor="#000000" >
+
+	<!-- title row -->	
+<tr>
+<td valign=top width="20%"><center><b><a style="font-size: 18pt">Command</a></b></center></td>
+<td valign=top width="80%"><center><b><a style="font-size: 18pt">Description</a></b></center></td>
+</tr>
+
+<!-- row 1 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5">BACKLIGHT</a></td>
+<!-- Description -->
+<td valign=top width="80%"><center><b>BACKLIGHT</b></center></td>
+</tr>
+
+<!-- row 2 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5e"><b>ba</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>backlight alert - rapidly flash backlight</b></td>
+</tr>
+
+<!-- row 3 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5e"><b>bas</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>set backlight from stack - set longer duration baclight alert with parameter on stack</b></td>
+</tr>
+
+<!-- row 4 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5c"><b>bh</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>backlight high - set the backlight to a high level (0xc0)</td>
+</tr>
+
+<!-- row 5 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5c"><b>bl</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>backlight low - set the backlight to a low level (0x40)</b></td>
+</tr>
+
+<!-- row 6 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5c"><b>bm</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>backlight medium - set the backlight to a medium level (0x7f = 50%)</b></td>
+</tr>
+
+<!-- row 7 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5c"><b>bn</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>backlight on - set the backlight to the maximum (0xff)</b></td>
+</tr>
+
+<!-- row 8 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5c"><b>bf</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>backlight off - turn off backlight (set to 0x00)</b></td>
+</tr>
+
+<!-- row 9 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5c"><b>bs</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>set backlight parameter - set backlight from stack parameter (e.g., decimal 20 bs)</b></td>
+</tr>
+
+<!-- row 10 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5d"><b>pwm</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>set backlight pwm value - set backlight from stack parameter (e.g., hex 7f pwm).  This directly stuffs the fast pwm register.</b></td>
+</tr>
+
+<!-- row 11 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5b"><b>save-backlight</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>save current backlight setting to eeprom - saved value is restored at startup</b></td>
+</tr>
+
+<!-- row 12 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5b"><b>set-backlight</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>set backlight from eeprom</b></td>
+</tr>
+   
+<!-- row 13 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5d"><b>@ebl</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>put backlight eeprom setting on stack.  Display this with "." or ".s" commands.</b></td>
+</tr>
+
+<!-- row 14 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5d"><b>!ebl</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>save stack value to backlight eeprom.  This backlight setting is restored at startup.</b></td>
+</tr>
+
+</table>   
+
+ <hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 21</b></p>
+                                                
+<h2>Command Summary (Cont.)</h2>
+
+<table border cellspacing=3 cellpadding=7 width="850" bordercolor="#000000" >
+
+	<!-- title row -->	
+<tr>
+<td valign=top width="20%"><center><b><a style="font-size: 18pt">Command</a></b></center></td>
+<td valign=top width="80%"><center><b><a style="font-size: 18pt">Description</a></b></center></td>
+</tr>
+
+  <!-- row 1 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9">CONTRAST</a></td>
+<!-- Description -->
+<td valign=top width="80%"><b><center>CONTRAST</center></b></td>
+</tr>
+
+  <!-- row 2 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9"><b>!ncon</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>set Nokia contrast - sends a new contrast value to the Nokia display from the stack</b></td>
+</tr>
+
+  <!-- row 3 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9"><b>ncon</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>display the eeprom contrast setting</b></td>
+</tr>
+
+  <!-- row 4 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6"><b>@econ</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>put the current eeprom contrast setting on the stack</b></td>
+</tr>
+
+  <!-- row 5 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6"><b>!econ</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>set the eeprom contrast setting from the stack</b></td>
+</tr>
+
+  <!-- row 6 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6"><b>/econ</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>store the default contrast setting in eeprom - to take effect, the Nano must be reset</b></td>
+</tr>
+
+  <!-- row 7 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6"><b>set-contrast</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>set the contrast from eeprom</b></td>
+</tr>
+
+  <!-- row 9 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6"><b>new-contrast</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>sets the eeprom contrast value to 0xff to simulate a newly-downloaded NOKIA program - use with the <b>init-contrast</b> command to allow interactive setting of the contrast (e.g., <b>new-contrast init-contrast</b>)</td>
+</tr>
+
+  <!-- row 10 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6b">MODES</a></td>
+<!-- Description -->
+<td valign=top width="80%"><b><center>MODES</center></b></td>
+</tr>
+
+  <!-- row 11 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6b"><b>all-on</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>turns on all Nokia display pixels</td>
+</tr>
+
+  <!-- row 12 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6b"><b>blank</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>blanks the display - Note: does not affect display memory (restore display memory with the <b>normal</b> command)</td>
+</tr>
+
+  <!-- row 13 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6b"><b>inverse</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>displays the screen in the inverse contrast mode (dark background)</td>
+</tr>
+   
+  <!-- row 14 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6b"><b>normal</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>displays the screen in the normal contrast mode (light background)</td>
+</tr>
+
+  <!-- row 15 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6">POSITIONING</a></td>
+<!-- Description -->
+<td valign=top width="80%"><b><center>POSITIONING</center></b></td>
+</tr>
+
+  <!-- row 16 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6c"><b>!x</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>sets the "x" position to the value on the stack.  Valid positions range from 0 to 83.</td>
+</tr>
+
+<!-- row 17 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6c"><b>!y</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>sets the "y" position to the value on the stack.  Valid positions range from 0 to 5.  This can also be used as a "row" positioning command.</td>
+</tr>
+
+<!-- row 18 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6c"><b>!xy</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>sets the "x" and "y" position to the values on the stack.  Note that the "x" position is put on the stack first, followed by the "y" (row) position.  Thus, <b>0 1 !xy</b> positions to the beginning of the second row (the first row is 0).</b></td>
+   </tr>
+
+<!-- row 19 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6c"><b>0xy</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>sets the xy position to the start of the display (upper left corner).  This is equivalent to <b>0 0 xy</b>.</td>
+</tr> 
+
+</table>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+                                                <p align="right" ><b>Page 22</b></p>
+<h2>Command Summary (Cont.)</h2>
+
+<table border cellspacing=3 cellpadding=7 width="850" bordercolor="#000000" >
+
+	<!-- title row -->	
+<tr>
+<td valign=top width="20%"><center><b><a style="font-size: 18pt">Command</a></b></center></td>
+<td valign=top width="80%"><center><b><a style="font-size: 18pt">Description</a></b></center></td>
+</tr>
+
+  <!-- row 1 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6d">TEXT</a></td>
+<!-- Description -->
+<td valign=top width="80%"><b><center>TEXT</center></b></td>
+</tr>
+
+<!-- row 2 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6d"><b>nchar</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays a Normal character at the current position using the ASCII value stored on the stack.  For example, to display an "G" at position (0,0), enter: "0xy hex 47 nchar".</b></td>
+</tr>
+
+<!-- row 3 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6d"><b>nstring</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays a full screen of normal mode text characters (used in the demo application).</b></td>
+</tr>
+
+<!-- row 4 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6d"><b>~nstring</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays a full screen of inverse mode text characters (used in the demo application).</b></td>
+</tr>
+
+<!-- row 5 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6d"><b>bchar</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays a Big character at the current position using the ASCII value on the stack.  For example, to display an "W" at position (0,0), enter: "0xy hex 57 nchar".</b></td>
+</tr>
+
+<!-- row 6 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6d"><b>bstring</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays a full screen of Big characters in normal mode (used in the demo application).</b></td>
+</tr>
+
+<!-- row 7 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 6d"><b>~bstring</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays a full screen of Big characters in inverse mode (used in the demo application).  This is the same effect as entering: "bstring inverse".</b></td>
+</tr>
+</table>   
+
+<hr noshade size=5 width="100%" align="center" class="break">
+                                                <p align="right" ><b>Page 23</b></p>
+                                                
+<h2>Command Summary (Cont.)</h2>
+
+<table border cellspacing=3 cellpadding=7 width="850" bordercolor="#000000" >
+
+	<!-- title row -->	
+<tr>
+<td valign=top width="20%"><center><b><a style="font-size: 18pt">Command</a></b></center></td>
+<td valign=top width="80%"><center><b><a style="font-size: 18pt">Description</a></b></center></td>
+</tr>
+
+  <!-- row 1 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 7a">NUMBERS</a></td>
+<!-- Description -->
+<td valign=top width="80%"><b><center>NUMBERS</center></b></td>
+</tr>
+
+<!-- row 2 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 7a"><b>nh.</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays the number on the stack in Normal characters at the current position, in hexadecimal.  Leading zeroes are suppressed.  For exmaple: "clear hex 0bc0 nh.".</b></td>
+   </tr>
+
+   <!-- row 3 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 7a"><b>nu.</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays the (16-bit) number on the stack in Normal characters, at the current postion, as an unsigned number.  Leading zeroes are suppressed.  Examples: "clear decimal 0065535 nu." or "clear hex ffff nu."</b>.</td>
+</tr>
+
+   <!-- row 4 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 7a"><b>nud.</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays the (32-bit) double number on the top two stack positions in Normal characters, at the current position, as an unsigned number.  Leading zeroes are suppressed.  Examples: "clear decimal 65535 1 nud." or "clear hex ffff ab nud."  Note that, as in normal Forth convention, the most significant byte of a double number is on the top of the stack.</b></td>
+</tr>
+
+   <!-- row 5 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 7a"><b>bh.</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays the number on the stack in Big characters at the current postion, in hexadecimal.  Leading zeroes are suppressed and replaced by blanks.  For exmaple: "clear hex 0bc0 bh."  Only one four-character hexadecimal number can be displayed per row.</b></td>
+</tr>
+
+   <!-- row 6 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 7a"><b>bu.</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays the (16-bit) number on the stack in Big characters, at the current postion, as an unsigned number.  Leading zeroes are suppressed.  Examples: "clear decimal 0065535 nu." or "clear hex 00ffff nu."  One 16-bit decimal or hex number can be displayed on a line.</b></td>
+</tr>
+
+<!-- row 7 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 7a"><b>bud.</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays the (32-bit) double number on the top two postions on the stack in Big characters, at the current position, as an unsigned number.  Leading zeroes are suppressed.  Examples: "clear decimal 65535 16 nud." or "clear hex ffff fff nud."  Note that, as in normal Forth convention, the most significant byte of a double number is on the top of the stack.</b></td>
+</tr>
+
+</table>
+                                                
+<hr noshade size=5 width="100%" align="center" class="break">
+                                                <p align="right" ><b>Page 24</b></p>
+<h2>Command Summary (Cont.)</h2>
+
+<table border cellspacing=3 cellpadding=7 width="850" bordercolor="#000000" >
+
+	<!-- title row -->	
+<tr>
+<td valign=top width="20%"><center><b><a style="font-size: 18pt">Command</a></b></center></td>
+<td valign=top width="80%"><center><b><a style="font-size: 18pt">Description</a></b></center></td>
+</tr>
+
+  <!-- row 1 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9">SETTINGS</a></td>
+<!-- Description -->
+<td valign=top width="80%"><b><center>SETTINGS</center></b></td>
+</tr>
+
+<!-- row 2 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9"><b>nset</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays all settings in a single screen.  See <a href="#photo 3">Photo 3</a></b></td>
+</tr>
+
+<!-- row 3 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9"><b>nver</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays the version setting</b></td>
+</tr>
+
+<!-- row 4 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9"><b>ver</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Puts version number on the stack for later use (e.g., output with "." or display with ".s")</b></td>
+</tr>
+
+<!-- row 5 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9"><b>cver</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Outputs the version string to the terminal ("console version")</b></td>
+</tr>
+
+<!-- row 6 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9"><b>ncon</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Display the contrast setting (from eeprom)</b></td>
+</tr>
+
+<!-- row 8 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9"><b>nopt</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays the startup option.  Display is "cmd option" for the command mode option (commands executed from a serial terminal).  Display is "demo option" for startup in the demo mode.  Enter the demo mode by executing "go" (escape only via a reset of the Nano).</b></td>
+</tr>
+
+<!-- row 9 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 5d"><b>npwm</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Displays the Pulse Width Modulation (PWM) value (0x00 to 0xff) for the backlight output.</b></td>
+</tr>
+
+  <!-- row 10 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 9">CONTROL</a></td>
+<!-- Description -->
+<td valign=top width="80%"><b><center>CONTROL</center></b></td>
+</tr>
+
+<!-- row 11 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 10"><b>~reset</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Resets the Nokia device.</b></td>
+</tr>
+
+<!-- row 12 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 10"><b>perm</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Performs a delay of 3 seconds before accepting the next command (used for display persistence).</b></td>
+</tr>
+
+<!-- row 13 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 10"><b>peek</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Performs a delay of 3 seconds before accepting the next command, then clears the display (used for transient display persistence).</b></td>
+</tr>
+
+<!-- row 14 -->
+<tr>
+<!-- Command -->
+<td valign=top width="20%"><b><a style="font-size: 125%" href="#section 10"><b>ms</b></a></td>
+<!-- Description -->
+<td valign=top width="80%"><b>Performs a delay based on the value on the stack (e.g., "100 ms" perform a 100 millisecond delay).  Note that the terminal will not respond to a command until the delay is complete.  This function is most useful in defining display behavior within a <i>myforth-arduino</i> definition.</b></td>
+</tr>
+
+</table>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+                                                <p align="right" ><b>Page 25</b></p>                                                
+<a name= "section 12"></a><h2>Revision Summary</h2>
+<table border cellspacing=3 cellpadding=7 width="871" bordercolor="#000000" >
+
+	<!-- title row -->	
+<tr>
+<td valign=top width="10%"><center><b>Revision</b></center></td>
+<td valign=top width="10%"><center><b>Date</b></center></td>
+<td valign=top width="80%"><center><b>Description</b></center></td>
+</tr>
+
+	<!-- row 1 -->
+<tr>
+<!-- Rev -->
+<td valign=top width="10%"><center>1.5</center></td>
+<!-- Date -->
+<td valign=top width="10%"><center>20Jun16</center></td>
+<!-- Description -->
+<td valign=top width="90%"><div align=left>Expanded command table</div></td>
+</tr>	
+
+	<!-- row 2 -->
+<tr>
+<!-- Rev -->
+<td valign=top width="10%"><center>1.4</center></td>
+<!-- Date -->
+<td valign=top width="10%"><center>16Jun16</center></td>
+<!-- Description -->
+<td valign=top width="90%"><div align=left>Initial production release</div></td>
+</tr>	
+
+</table>
+
+<!-- page footer --> 
+<hr noshade size=10 width="100%" align="center">
+<center>
+	<address><a href="mailto:Bob.Nash1@GMAIL.com">email for support</a></address>
+	<p style="font-size: 80%">Copyright &#169; 2016, <i>Bob Nash</i>.</p>
+</center>	
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+	   .break { page-break-before: always; } 
+	   pre { white-space: pre-wrap; color: black; font-family: monospace; font-weight: bold; font-size: 12pt; border: solid;
+         border-width: thin; padding 0.5em}
+      p   { font-family: sans-serif; font-size: 14pt; }
+      a   { font-family: sans-serif; font-size: 14pt; }
+      h1  { font-family: sans-serif; font-size: 22pt; }
+      h2  { font-family: sans-serif; font-size: 18pt; }
+      h3  { font-family: sans-serif; font-size: 16pt; }
+      h4  { font-family: sans-serif; font-size: 14pt; }
+      ul  { font-family: sans-serif; font-size: 14pt; }
+      ol  { font-family: sans-serif; font-size: 14pt; }
+      img { font-family: sans-serif; font-size: 14pt; }
+      div { font-family: sans-serif; font-size: 12pt; }
+      li  { font-family: sans-serif; font-size: 14pt; }
+      td  { font-family: sans-serif; font-size: 12pt; }
+       i  { font-family: sans-serif; font-size: 14pt; }
+  center  { font-family: sans-serif; font-size: 14pt; }
+
+
+
+       

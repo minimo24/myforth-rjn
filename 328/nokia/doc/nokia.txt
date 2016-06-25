@@ -1,0 +1,50 @@
+\ nokia.txt -- Nokia Graphics LCD Demo -- 160516rjn
+\
+\
+-----[OVERVIEW]-----
+
+This project uses a Nano board to drive a Nokia 84x48 graphics LCD.
+The demo shows character output on the display an how commands can
+be executed from the standalone interpreter.
+
+-----[DESCRIPTION]-----
+
+The demo is used primarily to functionally test the Nokia hardware by
+demonstrating character I/O and interpreter commands.
+
+-----[ DEVELOPMENT ENVIRONMENT ]-----
+
+1. A Nano board with serial bootloader, a Nokia 5110 graphics LCD,
+   a 74LVC04 logic level converter and a 78L3.3 voltage regulator for
+   the display (it is 3.3 Volts only).  For now, the 3.3 Volt power
+   from the Nano is not used.
+2. A PC running a terminal program such as minicom.
+3. Items listed in 1 & 2 are soldered to a piece of perf board with some
+   long standoffs in two opposite corners to allow the display to be 
+   viewed at a 45 degree angle.
+
+-----[ HARDWARE ]-----
+
+Same as given above for the Development Environment. 
+
+-----[ SOFTWARE ]-----
+
+1. The SPI app. template was used, mostly for the standalone interpreter.
+2. The standalone interpreter is used to demo commands and troubleshoot
+   during development.
+3. See init.fs for pin configuration, job.fs for application load file.
+
+-----[ DOCUMENTATION ]-----
+
+The documentation is now provided in the "doc" directory as an HTML and a PDF
+manual.
+
+ ------------------------------------------------------------------------------
+                            Revision History
+ ------------------------------------------------------------------------------
+
+Date	   By  Comments
+=======	=== ==================================================================
+160624   rjn see HTML and PDF manuals
+160516   rjn initial writeup.
+
