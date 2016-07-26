@@ -1,0 +1,53 @@
+\ humte.txt -- Humidity/Temperature Demo Application -- 160725rjn
+\
+\
+-----[OVERVIEW]-----
+
+The HUMTE project demonstrates how to extend the ENDIS encoder
+and display demo with a DHT22 temperature and humdity sensor. 
+
+The finished project provides a standalone temperature & humidity
+display on the Nokia graphics LCD display.  The incemental encoder
+is also active and used to determine whether degrees are displayed in
+Celsius or Fahrenheit.  The project was cloned from the ENDIS demo.
+
+-----[DESCRIPTION]-----
+
+The demo shows how to integrate a temperature and humidity sensor
+into an existing myforth-arduino project.  It is primarily designed to use
+the Nokia display but words are available so that the temperature and
+humidity can be read out in the serial command mode when the NOKIA
+project board's option jumper is configured in the "cmd" mode.
+
+-----[ DEVELOPMENT ENVIRONMENT ]-----
+
+1. NOKIA project board with an incremental encoder and a DHT22 
+   temperature/humidity sensor.
+2. A PC running a terminal program at 57K baud such as minicom.
+3. A Textronix TDS2014 oscilloscope.
+
+-----[ HARDWARE ]-----
+
+Same as given above for the Development Environment. 
+
+-----[ SOFTWARE ]-----
+
+1. The ENDIS application was used as a template with the updated ie_1.fs 
+   encoder driver and init.fs changed to configure the two. 
+2. The standalone interpreter was used to troubleshoot
+   the demo.
+3. See init.fs for pin configuration, job.fs for application load file.
+
+-----[ DOCUMENTATION ]-----
+
+The documentation is now provided in the "doc" directory (e.g., humte.html).
+
+ ------------------------------------------------------------------------------
+                            Revision History
+ ------------------------------------------------------------------------------
+
+Date	   By  Comments
+=======	=== ==================================================================
+160725   rjn pre-release ammendments
+160701   rjn initial writeup
+

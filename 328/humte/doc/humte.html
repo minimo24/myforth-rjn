@@ -1,0 +1,510 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+<head>
+   <link rel="stylesheet" type="text/css" href="./project.css"> 
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="author" content="Bob Nash">
+   <meta http-equiv="Description"  content="HUMTE Project Description">
+   <meta http-equiv="Keywords" content="nokia, encoder, electronics, dht22, display, serial, microcontrollers, Arduino, Nano">
+   <title>HUMTE Demo Project</title>
+</head>
+
+<!-- <body bgcolor="#E6E6E6" lang=EN-US style='tab-interval:.5in'> -->
+<body lang=EN-US style='tab-interval:.5in'>
+   
+<!-- see project.css file for formatting info -->
+
+<b><div align="center"><h1>HUMTE Demo Project</h1></div></b>
+<br />
+
+<a name= "photo 1"></a><p><center><img src="./humte_files/photo1_humte_assembly_600x337.jpg" alt="HUMTE Project Components" border=0 /></center></p>
+<p><b><i><div align="center" style="font-size: 100%">Photo 1. HUMTE Project Development Components</div></b></i></p>   
+
+<br />
+
+<p>This document describes a demo application using the Nokia 5110 graphics LCD, an incremental encoder and a DHT22 humidity and temperature measurement module. The purpose of this document is to show how three different components with drivers for <b><i>myforth-arduino</b></i> can be integrated to create a small application.</p>
+
+<p>In the following, the demo project is called "HUMTE" (HUMidity TEmperature).  Photo 1, above, shows the HUMTE project development assembly using the Nokia development board, an incremental encoder (with a stand and a knob), and the DHT22 humidity and temperature module.</p>
+
+<p>As shown in Photo 1, the demo displays the humidity and temperature using Big characters.  The display updates every five seconds as indicated by flashing the display backlight.  The encoder is used to determine whether temperature is displayed in Celsius or Fahrenheit degrees.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right"><b>Page ii</b></p>
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+<br /><br />
+
+<center><h2>(BLANK PAGE)</h2></center>    
+
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right"><b>Page iii</b></p>
+<h2>Contents</h2>
+   
+<ul style="list-style: none; ">
+   <li><a href="#section 1">Introduction</a></li>
+      <ul>	
+         <li><a style="font-size: 80%" href="#section 1a">Overview</a></li>
+         <li><a style="font-size: 80%" href="#section 1b">Software</a></li>
+         <li><a style="font-size: 80%" href="#section 1c">Development</a></li>
+         <li><a style="font-size: 80%" href="#section 1d">Future</a></li>
+      </ul>
+
+	<li><a href="#section 2">Quick Start</a></li>
+        
+   <li><a href="#section 3">Software</a></li>
+      <ul>
+		   <li><a style="font-size: 80%" href="#section 3a">Overview</a></li>
+         <li><a style="font-size: 80%" href="#section 3b">Display</a></li>
+         <li><a style="font-size: 80%" href="#section 3c">Encoder</a></li>
+         <li><a style="font-size: 80%" href="#section 3d">Timer 2</a></li>
+         <li><a style="font-size: 80%" href="#section 3e">DHT22 Sensor</a></li>
+         <li><a style="font-size: 80%" href="#section 3f">Main Loop</a></li>
+      </ul>
+
+   <li><a href="#section 4">Documentation</a></li>
+
+   <li><a href="#section 5">Revision Summary</a></li>
+</ul>	
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right"><b>Page iv</b></p>
+<h2>Figures</h2>
+<ul>
+   <li><a href="#photo 1">Photo 1. HUMTE Project Assembly</a></li>
+   <li><a href="./humte_files/schematic1_humte_1.jpg">Schematic 1. HUMTE Schematic</a></li>
+</ul>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 1</b></p>
+<a name= "section 1"></a><h2>Introduction</h2>
+<a name= "section 1a"></a><h3>Overview</h3>
+   
+   <p>The HUMTE project uses three components, a Nokia display module, an incremental encoder and a DHT22 humidity and temperature sensor.  The project primarily features the DHT22 device and shows a simple application that can be built with the above components.  Its value is not so much as a project as it is a demonstration of how various <b><i>myforth-arduino</b></i> drivers can be integrated to build an application.</p> 
+
+   <p>Also featured is the use Timer 2, operating in the background, to control two different display rates, one for the DHT22 (every 5 seconds) and one for the incremental encoder (every 100 milliseconds).</p>
+   
+   <p>The timer updates a flag every 100 milliseconds using a Timer 2 driver modified for operation at a 16 MHz clock (see <b>t2-ticks16.fs</b>).  Alternative timing code shows how to pace display rates without using Timer 2.</p>
+
+<p>Because the DHT22 sensor only uses one I/O line (PB0), the application can use additional I/O for an extended application requiring temperature and humidity readings.  The I/O usage for the HUMTE project is shown in <a href="./humte_files/schematic1_humte_1.jpg">Schematic 1</a>.</p> 
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 2</b></p>
+<h2>Introduction (Cont.)</h2>
+<a name= "section 1b"></a><h3>Software</h3>
+
+   <p>Source code and documentation for the HUMTE project can be found at the <a href="https://github.com/minimo24/myforth-rjn"><b><i>myforth-rjn</i></b> archive</a>.</p>
+      <p>The archive provides additional implementation details related to the demo, including the details of the DHT22 protocol, driver coding and error detection.  The source is provided to assist in building similar projects requiring temperature and humidity.</p> 
+
+      <p>The code for the project resides in the Nano module on the Nokia board and was developed with Charley Shattuck's <i><b>myforth-arduino</b></i> system.  This is available at the <a href="https://github.com/search?utf8=%E2%9C%93&q=myforth-arduino"><i><b>myforth-arduino</b></i> archive</a>.  It provides useful features of Forth, such as looping constructs and a stack, to be used when they make sense.</p>
+         
+      <p>However, <i><b>myforth-arduino</b></i> is perhaps most effective when used as a macro-assembler that takes advantage of the versatile instruction set of the Atmel 328p processor.  The DHT22 driver (<b>dht22.fs</b>), is described in detail to  illustrate the use of mixed Forth and assembler instructions.</p>
+
+<p>The demo compiles to a relatively small image, taking approximately 9K bytes of Flash memory, including the standalone command interpreter.  The final application also includes a number of utilities, such as math routines, that are generally useful in standalone applications but are mostly unused in the demo.</p>         
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 3</b></p>
+<h2>Introduction (Cont.)</h2>
+<a name= "section 1c"></a><h3>Development</h3>
+
+   <p>The demo was developed interactively using the standalone interpreter.  This development method is described more fully in the NOKIA Manual (see the NOKIA directory in the <a href="https://github.com/minimo24/myforth-rjn"><b><i>myforth-rjn</i></b> archive</a>).</p>
+
+      <p>As noted in the source for Timer 2, (<b>t2-ticks16.fs</b>), the timer can conflict with the operation of the standalone interpreter.  The application code includes an alternative timing based on a fixed 1 millisecond delay in the main loop (see the Software section below).  This alternate code was used during development when the standalone interpreter was needed.  The Timer 2 code was installed and verified after the application was nearly complete.</p>
+      
+      <p>Although the DHT22 driver provides code to do timing with either Timer 2 or main loop timing, there is no advantage in using Timer 2 other than to demonstrate how it might be used in an application where timing is performed in the background.</p>   
+
+<a name= "section 1d"></a><h3>Future</h3>
+
+<p>The author has designed a printed circuit board for the display module, including a DHT22 connection footprint and pullup resistor.  The board will soon be sent for fabrication.  Contact the author (see last page of this document) if you are interested in purchasing a board or semi-kit.</p>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 4</b></p>
+<a name= "section 2"><h3>Quick Start</h3>
+   
+   <p>This section describes the basic demo setup and startup.</p>
+
+   <p>First, ensure that the option switch on the Nokia board is in the "APPLICATION" position, per the notation in <a href="./humte_files/schematic1_humte_1.jpg">Schematic 1)</a>.</p>
+      
+      <p>For a new project board, download the latest HUMTE software to the Nano processor on the Nokia board.</p>
+      
+      <p>After downloading the demo, set the optimal display contrast the first time the demo starts up.  The Nokia's on-screen instructions explain how to do this.  This process is also described in more detail in the NOKIA Manual.</p>
+      
+      <p>Assuming that the demo software has been loaded and the contrast has been set, the demo should show the humidity and temperature in Big Nokia characters (see <a href="#photo 1">Photo 1</a>).  The backlight flashes approximately every 5 seconds whenever the temperature and humidity values are updated.</p>
+      
+      <p>Observe that there is a two-digit hexadecimal number displayed in Normal characters located just above the Big "C" or "F" characters on the temperature line.  This number is a readout of the last byte of the incremental encoder's 32-bit accumulator.  This value determines the display mode: either Celsius or Fahrenheit.  Values between 0x00 and 0x7e produce a display in Celsius; values between 0x7f and 0xff produce a display in Fahrenheit.</p>
+   
+   <p>The initial encoder value is zero, resulting in a default display in Celsius degrees.  Moving the incremental encoder shaft increments or decrements the initial encoder reading. Moving the encoder slightly counter-clockwise results in an encoder value starting with "F" (e.g., "FC").  With this high value, the display, when next updated, shows the temperature in Fahrenheit.</p>
+
+   <p>That is it!  Although extremely simple, the demo integrates three commonly-used components to demonstrate a complete turnkeyed application.</p>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 5</b></p>
+<a name= "section 3"></a><h2>Software</h2> 
+<a name= "section 3a"><h3>Overview</h3>
+   
+   <p>The following sections primarily discuss the features new to this application and provide some insight into the coding strategy.  Software included from the base <i><b>myforth-arduino</b></i> system are not discussed unless they relate to the application.</p>
+
+   <p>Source code is generally discussed in the order that it appears in the <b>job.fs</b> file that builds the application.</p>   
+   
+<a name= "section 3b"><h3>Display</h3>
+      
+   <p>The Nokia display driver has been updated from the version given in the NOKIA project and the most current display driver is now <b>nokia_1.fs</b> .</p>
+    
+   <p>Changes primarily relate to the numeric display for unsigned numbers: <b>nu., nud., bu., and bud.</b> .  Many of these convert the complete number using the pictured numeric operator <b>#s</b>.  This caused a problem with leading zero suppression in some cases.  The code was modified to either use a specific number of digits or to use a larger string to represent a zero value.  This cures most problems.</p>
+   
+   <p>One problematic word is <b>bud.</b>.  It displays a double number in Big characters as an unsigned number. To fit on a single line of the display, the largest number that can be used is decimal 9999999 (0x98967F).  The display of a zero was adjusted to seven places, assuming that, in most cases, numbers would be smaller than this or be displayed in Normal characters.  If numbers larger than this value are to carry over to a second line, then custom changes to the code may be needed to handle the "zero" case (e.g., by adjusting the zero string).</p>
+
+<hr noshade size=5 width="100%" align="center" class="break">
+											               <p align="right" ><b>Page 6</b></p>
+</a><h2>Software (Cont.)</h2>
+<h3>Display (Cont.)</h3>
+
+   <p>A word, <b>bu.1</b>, was added to display a number up to three digits and one tenth, in Big characters.  This is used to display the humidity and temperature.</p>
+   
+   <p>Some code inefficiencies were cleaned up, mainly by using the <b>if/</b> conditional instead of the <b>if</b> conditional.  This saves some unsightly <b>drop</b> words in the code but is not significantly more efficient.</p>
+
+   <p>The words <b>nspace</b> and <b>bspace</b> were also added to output a space to the display in Normal or Big characters, respectively.</p>   
+
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 7</b></p>
+<h2>Software (Cont.)</h2>
+<a name= "section 3c"><h3>Encoder</h3>
+      
+   <p>The incremental encoder driver, <b>ie_1.fs</b>, was changed to correct a potential problem with accessing the encoder's 32-bit accumulator.  Previously, the upper and lower accumulator values were fetched separately, disabling interrupts for each value.  The code was changed to fetch both upper and lower values at the same time after disabling interrupts.</p>
+
+   <p>Two new words were also added, <b>@encoder-upper</b> and <b>@encoder-lower</b>.  These access the upper and lower values of the accumulator separately.  Each of these words disables interrupts while fetching a 16-bit value.</p>
+   
+   <p>One of these new words, <b>@encoder-lower</b>, is clipped to 8-bits and used as a control value for display of temperature in either Fahrenheit or Celsius.  This word is also useful, for example, when using the encoder to cycle through menu items based on the current encoder value (e.g., by generating an index with <b>/mod</b>).</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 8</b></p>
+<h2>Software (Cont.)</h2>   
+<a name= "section 3d"><h3>Timer 2</h3>
+           
+   <p>Because the Nokia display module uses a 16 MHz Nano board, the existing Timer 2 code designed for an 8 MHz Pro Mini board was modified for 16 MHz operation.  The new Timer 2 code, <b>t2-ticks16.fs</b>, is mostly untouched except for new register initialization values.</p>
+   
+   <p>Clock scaling was changed to 1024 to provide a 10 millisecond tick at the higher clock rate.  This tick is counted down in the interrupt service routine to provide a flag that sets every 100 milliseconds.  Clearing the flag is the responsibility of the application code using the timer.</p>
+   
+   <p>The timer initialization word, <b>/timer2</b>, was changed so that it did not enable interrupts after execution.  This should be done in the startup initialization and was moved there (see the <b>init</b> word in <b>main.fs</b>, as described below).</p>        
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 9</b></p>
+<h2>Software (Cont.)</h2>
+<a name= "section 3e"><h3>DHT22 Sensor</h3>
+
+   <p>A new driver for the DHT22 sensor, <b>dht22.fs</b>, was developed for the demo.  The notes section of the source code describes the dht22 protocol.</p>
+
+   <p>The DHT22 is a one-wire device attached to PB0.  The data line is bidirectional and pulled up to 5 Volts with a resistor (see <a href="./humte_files/schematic1_humte_1.jpg">Schematic 1)</a>.  The DHT22 driver source defines two words to control whether or not the data line is an output or an input.  These words, <b>dht</b> and <b>host</b>, change PB0 to an input and output, respectively.</p>
+
+ <p>Because the sensor data must be acquired rapidly, six temporary registers are defined to hold the five byte message from the DHT22.  These registers may be used elsewhere if used atomically.  After a DHT22 message is received, the registers are unloaded into the top of stack registers and written to variables for use by the display words.</p>
+
+ <p>The documentation for the two-byte temperature and humidity values is relatively clear in the datasheet but there seems to be a bit of misinformation on the Web (imagine that!).  The two bytes comprise a 16-bit value that represents the temperature or humidity in tenths.</p>
+ 
+ <p>The new display word, <b>bu.1</b>, discussed above, displays the 16-bit temperature value by reading out up to four digits and placing a decimal point before the last digit using pictured numeric output (see <b>Nokia_1.fs</b>).</p>
+
+ <p>Three words are provided to access the humidity and temperature (in Celsius or Fahrenheit).  The word <b>@humidity</b> fetches the current humidity reading stored in a variable.  The word <b>@ctemp</b> does the same for the Celsius temperature.</p>
+
+ <hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 10</b></p>
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor</h3>
+
+ <p>The word <b>@ftemp</b> fetches the Celsius temperature and converts it to Fahrenheit, taking into account that the value represents the temperature in tenths of a degree.</p>
+ 
+ <p>The conversion algorithm is staightforward: add 400, multiply by 9/5 and subtract 400.  This works because, at -40 degrees, Celsius and Fahrenheit are equal.  This add just removes the bias before multiplication.  Normally, the adjustment would require addition of 40, but 400 must be used because the value is in tenths.  Once the adjusted value is scaled by 9/5, the 400 bias is subtracted.  Here is the definition:</p>
+
+ <pre> -: @ftemp ( - n)  @ctemp  400 #, |+  9 #, 5 #, */  400 #, negate |+ ; </pre>
+
+ <p>The word <b>@chek</b> fetches the checksum byte from the variable holding the latest checksum.  If the checksum doesn't equal the sum of the upper and lower bytes of both the humidity and temperature readings, the value is displayed in reverse video to indicate that it is bogus.  The word that does this is <b>?chek</b> which is used by the display words.</p>
+
+ <p>The word <b>forc?</b> checks the least significant byte of the incremental encoder to control the display of either a "C" or a "F" as a Big character next to the temperature value.  The value 0x7f is used as a pivot: values below this display a "C" character and values above this display an "F" character.</p>
+
+ <p>The word <b>ie>nokia</b> displays the least significant byte of the incremental encoder on the display.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 11</b></p>
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+
+<p>Readout of the bit stream for the five DHT22 data bytes is primarily accomplished by detecting signal edges.  Each bit is preceded by a "leader" period of about 50 microseconds when the signal from the DHT22 is low.</p>
+
+<p>At the end of the bit leader, the DHT22 data line goes high.  For a zero data bit, the signal remains high for about 25 microseconds; for a one bit, the signal remains high for about 75 microseconds.</p>
+
+ <p>The word <b>sample</b> detects each bit in the datastream. It first waits for the data output line from the DHT22 to go low.  This wait is performed by the macro <b>-edge</b> which exits as soon as the leader part of the bit sequence is detected.  Once in the leader, another word, <b>+edge</b>, waits until the signal line goes high.</p>
+ 
+ <p>At this point, the data signal is at the leading edge of the variable-length high part of the bit sequence.  Once this high edge is detected, a fixed delay of 45 microseconds is performed and the data output from the DHT22 is then sampled.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 12</b></p>
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+ 
+ <p>For a zero bit, the data output at sampling will be low because the 45 microsecond delay is longer that the high duration for a zero.  For a one bit, the data output will still be high because the the delay is shorter than the high duration for a one bit.  The code to implement a sample is:</p>
+
+ <pre>
+
+  \ -: blip      PB2 toggle,  1 #, us  PB2 toggle, ; \ debug marker for scope
+  -: blip ;
+  -: edly  1 #, us ;  \ edge delay
+  :m +edge  edly begin PB0 set? until  ( PB2 high,) m;
+  :m -edge  edly begin PB0 clr? until m;  target
+  \ 
+  -: sample  -edge  +edge  45 #, us ;
+ 
+ </pre>
+
+ <p>Note that <b>+edge</b> is defined with code ("PB2 high,") that can be commented out when debugging with an oscilloscope.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+											               <p align="right" ><b>Page 13</b></p>
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+
+ <p>The bits, as they are detected, are accumulated into a temporary register, <b>tbits</b>.  The word that accumulates the eight bits for each data byte is <b>@dht-bits</b>.  This is how it is defined:</p>
+
+ <pre>
+
+ -: @dht-bits   0 tbits ldi,
+    sample  PB0 set? $80 tbits ori, blip blip  \ bit7
+    sample  PB0 set? $40 tbits ori, blip       \ bit6
+    sample  PB0 set? $20 tbits ori, blip       \ bit5
+    sample  PB0 set? $10 tbits ori, blip       \ bit4
+    sample  PB0 set? $08 tbits ori, blip       \ bit3
+    sample  PB0 set? $04 tbits ori, blip       \ bit2
+    sample  PB0 set? $02 tbits ori, blip       \ bit1
+    sample  PB0 set? $01 tbits ori, blip       \ bit0
+;
+
+ </pre>
+
+ <p>The temporary register that accumulates bits is set to zero with the initialization code <b>0 tbits ldi,</b>.  The instruction <b>PB0 set?</b> checks to see if the data line is high at the end of the 45 microsecond bit delay.  If it is high, a "one" bit is set in <b>tbits</b>; otherwise the instruction that sets the bit is skipped, leaving the bit at zero from the initialization code.  Bits are accumulated most significant bit first. </p>
+ 
+ <p>Note that <b>PB0 set?</b> compiles a <b>sbic,</b> (skip if bit is clear) instruction so that a sequence such as <b>$80 tbits ori,</b> is skipped for a zero bit.  Note that the bit oring sequence compiles to a single instruction so that the <b>sbic,</b> instruction can skip over it.</p>
+
+ <p>The <b>blip</b> word is for oscilloscope debug.  When used, it marks the sampling point with a short signal transition on a spare I/O bit (PB2). Two blips are used to flag the most significant bit.</p>
+
+ <hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 14</b></p>
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+                                                
+<p>The word <b>@dht</b> primarily moves the bits accumulated in <b>tbits</b> to temporary registers as each message byte is completed.  It is defined as follows:</p>
+
+ <pre>
+
+ : @dht   
+    host PB0 low,  ( PB2 low,)  25 #, ms   ( PB2 high,)  dht  
+    +edge               \ wake, high for ~30 us
+    45 #, us PB0 set? ; \ exit if no response
+    -edge +edge         \ response: low then high for ~80 us 
+ \
+ \ after 50 us bit leader, a zero is ~26 us high; a one is ~80 usec high
+ \ 
+ \ --- first byte (humidity msb)
+    @dht-bits   tbits hmsb mov,
+ \
+ \ --- second byte (humidity lsb)
+    @dht-bits   tbits hlsb mov,  
+ \ 
+ \ --- third byte (temperature msb)
+    @dht-bits   tbits tmsb mov,
+ \   
+ \ --- fourth byte (temperature lsb)
+    @dht-bits   tbits tlsb mov,  
+ \
+ \ --- fifth byte (checksum of previous four bytes)
+    @dht-bits   tbits chek mov,
+ \ 
+    host PB0 high,  ;  \ enter "idle" state
+
+ </pre>
+ 
+ <hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 15</b></p>
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+
+<p>The word definition starts with the code sequence: <b>host PB0 low,  ( PB2 low,)  25 #, ms  ( PB2 high,)  dht</b>.  This configures the data line (PB0) as an output from the Nano with the <b>host</b> word.  Then, the data line is held low for 25 milliseconds to signal the DHT22 to start a new data cycle.  When this signal is complete, the data line is turned around with <b>dht</b> so that the Nano can receive the output from the DHT22.</p>
+
+ <p>The first <b>+edge</b> detects the high response from the DHT22 which signals it is awake and not pulling the data line low.  This high lasts about 25 microseconds.</p>
+
+ <p>The sequence <b>45 #, us</b> performs a 45 microsecond delay from the leading edge of the "wake" signal, which should position it in the middle of the low part of the "response" signal.  The <b>PB0 set?</b> checks to see that the response is low and the DHT22 is active.  If the response is high, then the DHT22 is assumed to be inactive or busy and the <b>;</b> is executed to exit from <b>@dht22</b>.  This results in a inverse output on the display, indicating a read error.</p>
+ 
+ <p>If there is no read error, the <b>;</b> is not executed and the definition proceeds to the <b>-edge +edge</b> sequence.  This skips over the remaining part of the "response" sequence.  The response sequence consists of (approximately) a 75 microsecond low signal followed by a 75 microsecond high signal.  At the end of the response sequence, data bits start with the low leader for the first bit of the first humidity byte.</p>
+
+
+<hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 16</b></p>
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+
+ <p>The sequence <b>@dht-bits  tbits hmsb mov,</b> accumulates a data byte and then moves the bit accumulator register <b>tbits</b> to a temporary register.  In this case the temporary register is <b>hmsb</b>, the most significant byte of the two-byte humidity reading.</p>
+ 
+ <p>In a similar fashion, all five data bytes are accumulated in <b>tbits</b> and then moved to temporary registers.</p>
+ 
+ <p>When all data bytes have been accumulated, the PB0 line from the Nano is set to an output with a high state.  This is the normal "idle" state.  In this state, the DHT22 draws minimal current while waiting for the next data query.</p>
+ 
+ <p>The query rate is controlled elsewhere (see below).  The datasheet gives a typical value of 2 seconds.  Tests with the DHT22 used in development showed that the results were reliable even when the sensor was sampled at a rate of 300 milliseconds. Failure was persistent at 100 millisconds -- this was how the error code in <b>@dh22</b> was tested.</p>
+
+ <p>The word <b>.dht</b> copies the temporary registers used by <b>@dht</b> to variables.  These variables hold the latest reading of humidity and temperature.  The word <b>?forc</b>, discussed above, uses the current variables to update the display.</p> 
+
+ <hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 17</b></p>
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+
+ <p>The word <b>?dht</b> controls the timing of the display updates.  There are two versions of this word.  One verision times display updates with Timer 2.  Another version does not use interrupts, deriving its timing by counting the number of times the main loop is executed.  It has a one millisecond delay to set the minimum resolution for timing.</p>
+
+ <p>The version of <b>?dht</b> that uses Timer 2 uses a flag variable, <b>'tflag</b>, that is set every 100 milliseconds by the Timer 2 interrupt service routine.  Each time the flag is found set, a timing variable, <b>'5sec</b> is incremented.  This variable is checked for a value of 50 to trigger a five second display update for humidity and temperature.</p>
+ 
+ <p>The timing variable is reset for the next timing period before calling <b>.dht</b> to update the display.  Note that the interrupts are disabled during a display update so that they (i.e., IE and T2 interrupts) do not interfere with the critical timing of <b>@dht</b>.</p>
+
+
+
+<hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 18</b></p> 
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+
+ <p>To produce a smooth display of the incremental encoder value, it is updated every 100 milliseconds.  This timing is also controlled by the <b>'tflag</b> variable that is set in the interrupt service routine.  Here is the pertinent code for timer-based display updates:</p>
+
+ <pre>
+
+ cpuHERE constant '5sec         2 cpuALLOT  \ DHT22 5 second counter
+ cpuHERE constant 'ie-timer     2 cpuALLOT  \ timer for IE display
+ \ 
+ -: /dht   0 #, '5sec #, |! ;
+ -: /ie-timer  0 #, 'ie-timer #, |! ;
+ -: /timers  /dht  /ie-timer ;
+\ 
+ -: ?dht  \ executes DHT22 read every 5 seconds (timer-based)  
+   'tflag #, cli, |c@  dup if/     \ $ff if timeout, resets flag if t/o
+       0 #, 'tflag #, |c!  ( PB2 toggle,)  \ reset every 100 ms
+       '5sec #, |@  1 #, + '5sec #, |!     \ bump 5 second accumulator
+    then  sei,  ( -  ?)
+ \
+    if/ ie>nokia then  \ update encoder based on 100 ms 'tflag changes
+ \
+    '5sec #, |@  $32 #, negate |+ if/  ;  \ not equal to 50, exit
+    then  ( PB2 toggle,) /dht  cli, .dht sei, ;   \ display if equal to 50
+
+ </pre>
+
+ <p>In the above code, note that the check for a five second display upate happens after managing the <b>'tflag</b> variable and checking for an encoder update.  The reason for this is that the five second check can directly exit if an update is not needed (i.e., using the ";" after "if/").  If this logic was put before the encoder update, for example, the routine would exit before checking for an encoder update.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 19</b></p> 
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+ 
+<p>For timing based on main loop delays, the code is as follows:</p>
+
+ <pre>
+
+ -: ?display-dht
+    '5sec #, |@  1 #+ dup '5sec #, |! 
+    5000 #, negate |+ if/ ; then ( PB2 toggle,) /dht  .dht ; \ DHT22 display
+ -: ?display-ie
+    'ie-timer #, |@ 1 #+ dup 'ie-timer #, |!
+    100  #, negate |+ if/ ; then /ie-timer  ie>nokia ; 
+ -: ?dht   ?display-ie  ?display-dht ;
+
+ </pre>
+
+ <p>This code uses <b>'5sec</b> to count the number of times through the main loop.  It is bumped up every time through the loop and, when it reaches 5000 (milliseconds), 
+ it uses <b>.dht</b> to update the humidity and temperature display.  The word <b>/dht</b> resets <b>'5sec</b> to zero whenever a display update occurs.  The five second timing is performed by <b>?display-dht</b>.</p>
+
+ <p>Timing for the incremental encoder is performed by <b>?display-ie</b> using code that is similar to that used for <b>?display-dht</b>.  The word <b>?dht</b> consolidates encoder and humidity/temperature timing within the main loop.</p> 
+
+ <hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 20</b></p>
+<h2>Software (Cont.)</h2>
+<h3>DHT22 Sensor (Cont.)</h3>
+
+<p>Finally, a note about sensor accuracy.  The DHT22 used during development was verified using a laboratory-grade thermometer calibrated in degrees Celsius and Fahrenheit.  Readings between the DHT22 and the thermometer were generally in agreement within a half-degee Fahrenheit.  The humidity was checked by querying the humidity for the development location, Carmichael, CA, and was found to be in good agreement (typically within a percent or two).</p>
+
+ <p>The datasheet for the DHT22 specifies a temperature accuracy of less than half a degree Celsius (about one degree Fahrenheit).  The humidity accuracy was specified as plus or minus two percent and is temperature compensated.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 21</b></p>
+<h2>Software (Cont.)</h2>
+<a name= "section 3f"><h3>Main Loop</h3>
+      
+    <p>The following code implements <b>go</b>, the startup word for the turnkeyed demo:</p>
+
+<pre>
+
+ \ Note: use /timer if using interrupt timing; /timers if using main loop
+ \ 
+ : init  /chip  /pwm  /int0  /encoder  ( /timer2)  /timers  
+         /nokia  /dht  clear  bm  sei, ;
+ \ 
+ : go   init  .dht  begin 1 #, ms  ?dht again
+
+</pre>
+
+    <p>The initialization word, <b>init</b>, initializes all of the application components and enables interrupts.  The <b>/chip</b> word, initializes the I/O.  The I/O initialization is the same as that used for the IE Project but with PB0 set initially as an input (it is used for the DHT22 bidirectional data line).</p>
+
+    <p>The <b>/pwm</b> word initializes pulse width modulation for the Nokia backlight.  The <b>/int0</b> word initializes interrupt 0 used by the incremental encoder.  The <b>/encoder</b> word initializes the incremental encoder registers.</p>
+
+    <p>For application timing with Timer 2, the word <b>/timer2</b> should be uncommented and the word <b>/timers</b> should be commented out.  For timing with the main loop, <b>/timers</b> should be used, as shown above.</p>
+
+    <p>The words <b>/nokia</b> and <b>/dht</b> initialize the display and the DHT22 senor, respectively.  The <b>clear bm</b> sequence clears the Nokia display and sets a "medium" backlight.  The <b>sei,</b> enables interrupts.</p>
+
+<hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 22</b></p>
+<h2>Software (Cont.)</h2>
+<h3>Main Loop (Cont.)</h3>
+    
+    <p>The turnkey word, <b>go</b>, implements the main loop.  Before entering the main loop, the application is initialized and the display is updated with <b>.dht</b>.  Thereafter, display updates are controlled in the main loop.</p>
+
+    <p>The main loop is implemented with the code sequence: <b>begin 1 #, ms  ?dht again</b>.  The <b>begin ... again</b> implements an endless loop as required for a turnkeyed application.  Within this loop, <b>1 #, ms</b> implements a one millisecond delay (see <b>delay.fs</b>). The <b>?dht</b> word times the display of temperature and humidity and the incremental encoder, as discussed above.</p>
+
+ <hr noshade size=5 width="100%" align=center class="break">
+                                                <p align="right" ><b>Page 23</b></p> 
+<a name= "section 4"><h2>Documentation</h2>
+      
+   <p>This manual is saved in the <i><b>doc</b></i> directory in both HTML and PDF format.  The HTML format was retained in the event that the documentation is put on a Web site.  It also provides separate access to graphic files.  These files are stored in the <i><b>humte_files</b></i> directory.  A separate folder under this directory, <i><b>hr</b></i>, provides high-resolution versions of the photos used in the HTML document.</p>
+
+   <p>The page numbers apply to the HTML document, which can be printed with the proper page breaks.  To see what the printed HTML will look like, use the "print preview" (or similar) option that is availble on most browsers.</p>
+   
+   <p>The PDF format is more convenient for distribution as a standalone document.  It includes live links to provide some of the hypertext capabilities of the HTML document when used locally (i.e., there is access to the <i><b>humte_files</b></i> directory).</p>
+
+   <p>The PDF is produced by importing the the HTML to LibreOffice Writer and exporting it as a PDF.  Before exporting, some adjustments are made to improve readability, such as manually inserting page breaks, but this pre-processing may not be entirely consistent (or successful).  My PDF viewer shows the manual full-page with (mostly) correct pagination.</p>
+
+   <p>Documentation in the source code provides additional information and application usage examples.</p>
+      
+<hr noshade size=5 width="100%" align="center" class="break">
+                                          <p align="right" ><b>Page 24</b></p>                                                
+<a name= "section 5"></a><h2>Revision Summary</h2>
+<table border cellspacing=3 cellpadding=7 width="871" bordercolor="#000000" >
+
+	<!-- title row -->	
+<tr>
+<td valign=top width="10%"><center><b>Revision</b></center></td>
+<td valign=top width="10%"><center><b>Date</b></center></td>
+<td valign=top width="80%"><center><b>Description</b></center></td>
+</tr>
+
+	<!-- row 1 -->
+<tr>
+<!-- Rev -->
+<td valign=top width="10%"><center>1.0</center></td>
+<!-- Date -->
+<td valign=top width="10%"><center>24Jul16</center></td>
+<!-- Description -->
+<td valign=top width="90%"><div align=left>Initial release</div></td>
+</tr>	
+
+</table>
+
+<!-- page footer --> 
+<hr noshade size=10 width="100%" align="center">
+<center>
+	<address><a href="mailto:Bob.Nash1@GMAIL.com">email for support</a></address>
+	<p style="font-size: 80%">Copyright &#169; 2016, <i>Bob Nash</i>.</p>
+</center>	
+
+</body>
+</html>
